@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Campus Eats - Menu Uploader (FIXED)</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #FF6B35; font-size: 32px; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; font-size: 18px; }
+        .big-button {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+            color: white;
+            border: none;
+            padding: 25px 50px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            width: 100%;
+            margin: 20px 0;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(255,107,53,0.4);
+        }
+        .big-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255,107,53,0.6);
+        }
+        .big-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .success { background: #E8F5E9; color: #2E7D32; border-left: 5px solid #2ECC71; }
+        .error { background: #FFEBEE; color: #C62828; border-left: 5px solid #E74C3C; }
+        .loading { background: #E3F2FD; color: #1976D2; border-left: 5px solid #3498DB; }
+        .progress {
+            margin-top: 15px;
+            font-size: 36px;
+            color: #FF6B35;
+            font-weight: 800;
+        }
+        .warning-box {
+            background: #FFF3E0;
+            border: 2px solid #FF6B35;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .warning-box h3 { color: #FF6B35; margin-bottom: 10px; }
+        .code-box {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Campus Eats Menu Uploader</h1>
+        <p class="subtitle">Upload 281 items: Grub Foods (81) + Roll Me (82) + Siddi Vinayaka (118)</p>
+        
+        <div class="warning-box">
+            <h3>⚠️ STEP 1: Update Firebase Rules</h3>
+            <p><strong>Go to Firebase Console → Firestore Database → Rules</strong></p>
+            <p>Replace with:</p>
+            <div class="code-box">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</div>
+            <p style="margin-top: 10px;"><strong>Click "Publish"</strong></p>
+        </div>
+
+        <button class="big-button" onclick="uploadEverything()" id="upload-btn">
+            🚀 UPLOAD ALL 281 ITEMS NOW
+        </button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Your Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
+            authDomain: "campus-eats-007.firebaseapp.com",
+            projectId: "campus-eats-007",
+            storageBucket: "campus-eats-007.firebasestorage.app",
+            messagingSenderId: "201751423832",
+            appId: "1:201751423832:web:6d4692dbc1053789fb132d"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const menuData = [
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Aloo Bonda (2 pcs)", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Bhajji 3 pcs (Banana)", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Bhajji 3 pcs (Mirchi)", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Buttermilk", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Cheese Masala Maggie", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Chilli Paneer", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Dahi Bhalla", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Dal Khichdi", "Price (₹)": 95, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Gobhi Manchurian", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Hot and Sour Soup", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Lemon Soda", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Maggie", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Manchow Soup", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Pav Bhaji", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Sabudana Khichdi", "Price (₹)": 85, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Schezwan Paneer", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Simpli Veggies (Boiled Veg)", "Price (₹)": 50, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Spicy Veggies", "Price (₹)": 50, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Sweet Corn Soup", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Tomato Soup", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Veg Fried Rice", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Veg Manchurian", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Veg Noodles", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Vegetable Fry", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Biryani", "Item Name": "Mushroom Biryani", "Price (₹)": 90, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Biryani", "Item Name": "Paneer Biryani", "Price (₹)": 120, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Biryani", "Item Name": "Veg Biryani", "Price (₹)": 90, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Aloo Paratha - 2 nos", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Bisibelle Bhat", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Idly - 2 nos", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Idly - 3 nos", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Idly Vada (2 Idly, 1 Vada)", "Price (₹)": 55, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Kesari Bhat", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Khali Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Lemon Rice", "Price (₹)": 55, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Masala Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Mini Tiffin", "Price (₹)": 75, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Onion Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Paneer Dosa", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Paneer Paratha - 2 nos", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Pesarattu", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Plain Dosa", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Pongal", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Poori - 3 nos", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Puliyogare", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Ragi Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Rava Idly", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Rawa Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Schezwan Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Semiya Upma", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Set Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Tomato Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Upma", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Uthappam", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Vada - 2 nos", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Vangi Bhat", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Chinese Combo", "Item Name": "Chinese Veg Combo Noodles", "Price (₹)": 110, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Chinese Combo", "Item Name": "Chinese Veg Combo Rice", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Badam Milk", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Boost", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Bournvita", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Coffee", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Ginger Tea", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Green Tea", "Price (₹)": 18, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Horlicks", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Instant Coffee", "Price (₹)": 18, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Jaggery Tea", "Price (₹)": 18, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Lemon Tea", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Tea", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Tulsi Tea", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Chapati/Rice with Veg Curry", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Chole Bhature", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Kadhi Chawal", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Lachha Paratha with Paneer", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Paneer Combo", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Pindi Chole Combo", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Poori Subzi", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Rajma Chawal", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Veg Rice Combo (5 Varieties)", "Price (₹)": "50-90", "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Veg Thali (North Indian)", "Price (₹)": 110, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Veg Thali (South Indian)", "Price (₹)": 110, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Chicken Sukka Dry", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Gowan Chicken", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Lollipop Soup", "Price (₹)": 159, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Pepper Wings", "Price (₹)": 149, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Special Chicken", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Spicy Wings", "Price (₹)": 149, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Chicken GSB", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Chicken Manchurian", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Chilli Chicken", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Donne Chicken Lollipop", "Price (₹)": 179, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Egg Chilli", "Price (₹)": 119, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Hyderabadi Chilli Chicken", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Lemon Chicken", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Biriyani Rice + 2 Pcs Kebab", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Chapathi + Chicken Curry", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Chapathi + Egg Curry", "Price (₹)": 79, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Donne Biriyani Rice + 2 Pcs Kebab", "Price (₹)": 139, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Donne Chicken Biriyani + 2 Pcs Kebab", "Price (₹)": 189, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Ghee Rice + 2 Pcs Kebab", "Price (₹)": 139, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Gowan Chicken + 2 Pcs Parota", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Grilled Chicken Quarter + 2 Pcs Kuboas", "Price (₹)": 139, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Hyderabadi Chicken Biriyani + 2 Pcs Kebab", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Idli + Chicken Chop Curry", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Naati Chicken Rice + 2 Pcs Kebab", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Naati Egg Rice + 2 Pcs Kebab", "Price (₹)": 139, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Parota + Chicken Curry", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Parota + Egg Curry", "Price (₹)": 79, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Rice + Chicken Curry + 2 Pcs Kebab", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Curry", "Item Name": "Chicken Chop", "Price (₹)": 139, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Curry", "Item Name": "Chicken Masala", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Curry", "Item Name": "Egg Curry", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Chicken Kebab", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Chicken Kebab Boneless", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Chicken Lollipop", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Grill Chicken Full", "Price (₹)": 379, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Grill Chicken Half", "Price (₹)": 219, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Grill Chicken Quarter", "Price (₹)": 119, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian Bread", "Item Name": "Chapathi", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian Bread", "Item Name": "Kuboas", "Price (₹)": 19, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Indian Bread", "Item Name": "Parota", "Price (₹)": 19, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Lassi", "Item Name": "Mango Lassi", "Price (₹)": 89, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Lassi", "Item Name": "Strawberry Lassi", "Price (₹)": 89, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Lassi", "Item Name": "Sweet Lassi", "Price (₹)": 59, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Noodles", "Item Name": "Chicken Noodles", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Noodles", "Item Name": "Egg Noodles", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Noodles", "Item Name": "Schezwan Chicken Noodles", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Noodles", "Item Name": "Schezwan Egg Noodles", "Price (₹)": 109, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "(2 Pcs Grilled Chicken) RYL BIRIYANI RICE", "Price (₹)": 199, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "(2 Pcs Grilled Chicken) RYL BIRYANI (DONNE STYLE)", "Price (₹)": 199, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Biriyani Rice", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Donne Biriyani Rice", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Donne Chicken Biriyani", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Egg Biriyani", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Egg Fried Rice", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Ghee Rice", "Price (₹)": 99, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Grill Chicken Biriyani", "Price (₹)": 199, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Hyderabadi Chicken Biriyani", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Naati Chicken Rice", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Nellore Chicken Biriyani", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Egg Kebab Roll", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Kebab Roll", "Price (₹)": 69, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Liver Roll", "Price (₹)": 49, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Lollipop Roll", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Tikka Roll", "Price (₹)": 59, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Double Chicken Kebab Roll", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Double Chicken Liver Roll", "Price (₹)": 79, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Double Chicken Tikka Roll", "Price (₹)": 79, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Double Chicken Tikka Roll", "Price (₹)": 109, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Roll Me Special", "Price (₹)": 129, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Chef's Special", "Price (₹)": 99, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Double Mushroom Roll", "Price (₹)": 79, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Double Paneer Roll", "Price (₹)": 89, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Double Potato Roll", "Price (₹)": 69, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Mushroom Roll", "Price (₹)": 59, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Paneer Roll", "Price (₹)": 69, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Potato Roll", "Price (₹)": 49, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Veggie Roll", "Price (₹)": 59, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "(Whole ShaWarma) DOUBLE ShaWarma", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "Plate Chicken ShaWarma", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "Plate Paneer ShaWarma", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "Regular ShaWarma", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "Whole ShaWarma", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Dal Fry", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Dal Khichdi", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Kaju Curry", "Price (₹)": 150, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Matar Khichdi", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Palak Khichdi", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "2 Pcs Idly Vada", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Bhelpuri / Sevpuri", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Boost / Horlicks", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Chaat (Day 1 Pcs)", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Coffee / Tea / Badam", "Price (₹)": 20, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Curd Badam Milk", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Curd Lassi", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Filter Coffee / Badam Milk", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Fruit Salad (Day)", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Hot Milk", "Price (₹)": 20, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Idly Vada", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Kesari Bath", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Khara Bath", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Masala Puri", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Pani Puri", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Plain Milk", "Price (₹)": 20, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Pongal", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Rice Bath", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Sabudana Khichdi", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Samosa", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Samosa Chaat", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Special Pongal", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Curd Rice + Soft Drinks + Jamoon", "Price (₹)": 140, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Dal Khichdi + Soft Drinks + Jamoon", "Price (₹)": 140, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Dum Biryani + Paneer Chilli + Jamoon", "Price (₹)": 180, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Fried Rice + Gobi Manchuri + French Fries", "Price (₹)": 150, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Paneer Bhurji + Chapathi / Parotta 3 Nos + Jamoon", "Price (₹)": 160, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Paneer Semi Gravy + Chapathi / Parotta 3 Nos + Jamoon", "Price (₹)": 170, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Butter Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Masala Dosa", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Onion Masala Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Paper Dosa", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Paper Masala Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Paper Plain Dosa", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Plain Dosa", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Podi Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Rava Dosa", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Rava Onion Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Rava Onion Masala Dosa", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Set Dosa (2 Pcs)", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Tomato Dosa", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Utappam", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "Curd Rice", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "Jeera Rice", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "North Indian Thali", "Price (₹)": 95, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "South Indian Meals", "Price (₹)": 75, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "Veg Biryani", "Price (₹)": 80, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Aloo Manchurian", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Gobi Manchurian", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Mushroom Manchurian", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Paneer Manchurian", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Paneer Schezwan Manchurian", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Soya Manchurian", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Egg Noodles", "Price (₹)": 60, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Mushroom Noodles", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Mushroom Schezwan Noodles", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Paneer Cheese Noodles", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Paneer Noodles", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Schezwan Noodles", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Singapore Noodles", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Veg Cheese Noodles", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Veg Noodles", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Jeera Rice", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Mushroom Schezwan Rice", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Paneer Fried Rice", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Plain Rice", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Schezwan Rice", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Soya Fried Rice", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Sweet Corn Rice", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Triple Fried Rice", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Veg Biryani", "Price (₹)": 80, "Veg/Non-Veg": "NON-VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Veg Fried Rice", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Veg Pulao", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Butter Naan", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Chapathi / 4 Nos / Dal Fry", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Chapathi with 4 Pcs", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Gobi 65 / Parotta", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Paneer Parotta with Cheese", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Parotta 4 Nos", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Parotta Curry", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Parotta Masala", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Plain Parotta", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Tandoori Roti", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Cheese Masala Dosa", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Corn Cheese Dosa", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Corn Masala Dosa", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Ghee Roast", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Plain Cheese Dosa", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Podi Cheese Dosa", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Rava Cheese Dosa", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Rava Onion Cheese Dosa", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Rava Onion Masala Cheese", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Red Chilli Dosa", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Baby Corn Chilli", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Chilli Mushroom", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Gobi 65", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Gobi Chilli", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Gobi Fry Chilli", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Gobi Manchurian", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Mushroom Chilli", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Mushroom Manchurian", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer 65", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer Chilli", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer Hyderabadi", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer Manchurian", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer Schezwan Fry", "Price (₹)": 110, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Soya Chilli", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Soya Manchurian", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Fruit Salad", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Jamoon", "Price (₹)": 20, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Kulfi", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Lassi / Buttermilk", "Price (₹)": 35, "Veg/Non-Veg": "VEG"},
+            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Sweet Curd", "Price (₹)": 35, "Veg/Non-Veg": "VEG"},
+        ];
+
+        // FIXED: Correct vendor mapping with actual Excel store names
+        const vendorMapping = {
+            'GRUB FOODS': 'grub_foods',
+            'ROLL ME': 'roll_me',
+            'SIDDI VINAYAKA GARDEN': 'siddi_vinayaka'  // ← FIXED!
+        };
+
+        async function uploadEverything() {
+            const btn = document.getElementById('upload-btn');
+            const status = document.getElementById('status');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ UPLOADING...';
+            
+            try {
+                // Create vendors
+                status.innerHTML = '<div class="status loading">📁 Creating 3 vendors...</div>';
+                await createVendors();
+                await new Promise(r => setTimeout(r, 500));
+                
+                // Upload menu
+                status.innerHTML = '<div class="status loading">🍽️ Uploading menu items...<div class="progress" id="progress">0 / 281</div></div>';
+                await uploadMenuItems();
+                
+                // Create settings
+                status.innerHTML = '<div class="status loading">⚙️ Creating settings...</div>';
+                await createSettings();
+                
+                status.innerHTML = `
+                    <div class="status success">
+                        <h2 style="margin-bottom: 15px;">✅ SUCCESS!</h2>
+                        <p style="font-size: 20px;">✓ 3 Vendors created</p>
+                        <p style="font-size: 20px;">✓ 281 Menu items uploaded</p>
+                        <p style="font-size: 20px;">✓ Settings configured</p>
+                        <br>
+                        <p style="font-size: 24px; font-weight: 800;">🎉 Database Ready!</p>
+                        <p style="margin-top: 15px;">Test at: <strong>campus-eats-psi.vercel.app</strong></p>
+                    </div>
+                `;
+                btn.textContent = '✅ DONE!';
+            } catch (error) {
+                console.error('Upload error:', error);
+                status.innerHTML = `
+                    <div class="status error">
+                        <h3>❌ Upload Failed</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <br>
+                        <p><strong>Troubleshooting:</strong></p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>Did you update Firebase Security Rules?</li>
+                            <li>Is your internet connection working?</li>
+                            <li>Check browser console (F12) for details</li>
+                        </ul>
+                    </div>
+                `;
+                btn.disabled = false;
+                btn.textContent = '🔄 TRY AGAIN';
+            }
+        }
+
+        async function createVendors() {
+            await db.collection('vendors').doc('grub_foods').set({
+                name: 'Grub Foods',
+                rating: 4.5,
+                location: 'Campus Food Court',
+                prepTime: 20,
+                isActive: true
+            });
+            
+            await db.collection('vendors').doc('roll_me').set({
+                name: 'Roll Me',
+                rating: 4.2,
+                location: 'Campus Food Court',
+                prepTime: 25,
+                isActive: true
+            });
+            
+            await db.collection('vendors').doc('siddi_vinayaka').set({
+                name: 'Siddi Vinayaka Garden',
+                rating: 4.3,
+                location: 'Campus Food Court',
+                prepTime: 30,
+                isActive: true
+            });
+        }
+
+        async function uploadMenuItems() {
+            let count = 0;
+            const progressEl = document.getElementById('progress');
+            const batchSize = 10;
+            
+            for (let i = 0; i < menuData.length; i++) {
+                const item = menuData[i];
+                const storeName = String(item['Store Name']).trim().toUpperCase();
+                const vendorId = vendorMapping[storeName];
+                
+                if (!vendorId) {
+                    console.error('Unknown store:', storeName);
+                    continue;
+                }
+                
+                await db.collection('menu_items').add({
+                    vendorId: vendorId,
+                    name: item['Item Name'],
+                    price: Number(item['Price (₹)']),
+                    category: item['Category'],
+                    vegNonVeg: item['Veg/Non-Veg'],
+                    description: item['Item Name'],
+                    isAvailable: true
+                });
+                
+                count++;
+                if (progressEl) {
+                    progressEl.textContent = count + ' / ' + menuData.length;
+                }
+                
+                // Pause every 10 items to avoid rate limits
+                if (count % batchSize === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+            }
+        }
+
+        async function createSettings() {
+            await db.collection('settings').doc('pricing').set({
+                convenienceFee: 2,
+                showConvenienceFee: true,
+                premiumPrice: 49,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        // Auto-check Firebase connection on load
+        window.addEventListener('load', () => {
+            if (typeof firebase === 'undefined') {
+                document.getElementById('status').innerHTML = `
+                    <div class="status error">
+                        ❌ Firebase not loaded! Make sure you have internet connection.
+                    </div>
+                `;
+            } else {
+                document.getElementById('status').innerHTML = `
+                    <div class="status success">
+                        ✅ Ready to upload! Click the button above.
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
