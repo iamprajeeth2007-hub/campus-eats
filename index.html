@@ -402,6 +402,64 @@
             border-color: #dc2626;
         }
 
+        /* Menu Screen Styles */
+        .menu-card {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-card:hover {
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.2);
+        }
+
+        .menu-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #1a1a1a;
+        }
+
+        .menu-price {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .menu-description {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .loading-text {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            color: #666;
+            font-size: 15px;
+        }
+
         @media (max-width: 480px) {
             .card {
                 padding: 32px 24px;
@@ -595,7 +653,7 @@
                 </div>
 
                 <div class="menu-grid">
-                    <div class="menu-item" onclick="alert('Browse Menu feature coming soon!')">
+                    <div class="menu-item" onclick="loadMenu()">
                         <div class="menu-item-icon">📋</div>
                         <div class="menu-item-title">Browse Menu</div>
                     </div>
@@ -621,6 +679,22 @@
                 </button>
             </div>
         </div>
+
+        <!-- Menu Screen -->
+        <div id="menu-screen" class="screen">
+            <div class="card">
+                <div class="home-header">
+                    <h2>Campus Menu 🍽️</h2>
+                    <p>Available Items</p>
+                </div>
+
+                <div id="menu-list"></div>
+
+                <button class="btn btn-secondary" onclick="showScreen('home-screen')">
+                    Back
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Firebase SDK -->
@@ -631,7 +705,6 @@
         // ========================
         // FIREBASE CONFIGURATION
         // ========================
-        // TODO: Replace with your Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyBlJSNdxM2xzaHMdbPiFqhHKfhkt5Jgqv0",
             authDomain: "campus-eats-007.firebaseapp.com",
@@ -888,6 +961,56 @@
                 showNotification('Login failed. Please try again.');
             } finally {
                 setButtonLoading(button, false);
+            }
+        }
+
+        // ========================
+        // LOAD MENU ITEMS
+        // ========================
+        async function loadMenu() {
+            showScreen('menu-screen');
+
+            const menuList = document.getElementById('menu-list');
+            menuList.innerHTML = '<div class="loading-text">Loading menu...</div>';
+
+            try {
+                const snapshot = await db.collection('menu_items').get();
+
+                if (snapshot.empty) {
+                    menuList.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🍽️</div>
+                            <div class="empty-state-text">No menu items available at the moment.</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                menuList.innerHTML = "";
+
+                snapshot.forEach(doc => {
+                    const item = doc.data();
+
+                    const div = document.createElement('div');
+                    div.className = 'menu-card';
+
+                    div.innerHTML = `
+                        <div class="menu-title">${item.name || 'Unnamed Item'}</div>
+                        <div class="menu-price">₹${item.price || '0'}</div>
+                        ${item.description ? `<div class="menu-description">${item.description}</div>` : ''}
+                    `;
+
+                    menuList.appendChild(div);
+                });
+
+            } catch (error) {
+                console.error("Error loading menu:", error);
+                menuList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <div class="empty-state-text">Failed to load menu. Please try again.</div>
+                    </div>
+                `;
             }
         }
 
