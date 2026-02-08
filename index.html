@@ -6,6 +6,8 @@
     <title>Campus Eats - Food Delivery</title>
     
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
     <style>
         * {
@@ -298,6 +300,39 @@
             margin-top: 12px;
         }
 
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 24px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #999;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+        }
+
+        /* Filter Buttons (Only in Menu) */
         .filter-container {
             display: flex;
             gap: 12px;
@@ -398,7 +433,6 @@
             color: #666;
         }
 
-        /* Menu Category Section */
         .category-section {
             margin-bottom: 32px;
         }
@@ -463,13 +497,6 @@
             font-size: 16px;
             font-weight: 600;
             color: #1a1a1a;
-        }
-
-        .menu-item-desc {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-            line-height: 1.4;
         }
 
         .menu-item-price {
@@ -621,12 +648,8 @@
         }
 
         @keyframes scaleIn {
-            from {
-                transform: scale(0);
-            }
-            to {
-                transform: scale(1);
-            }
+            from { transform: scale(0); }
+            to { transform: scale(1); }
         }
 
         .order-number {
@@ -674,12 +697,8 @@
         }
 
         @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-            }
-            to {
-                transform: translateX(0);
-            }
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
         }
 
         .back-btn {
@@ -842,16 +861,18 @@
             <div class="container">
                 <h2 class="section-title">Restaurants</h2>
                 
-                <div class="filter-container">
-                    <button class="filter-btn active" data-filter="all" onclick="filterRestaurants('all', this)">
-                        🍽️ All
-                    </button>
-                    <button class="filter-btn" data-filter="veg" onclick="filterRestaurants('veg', this)">
-                        🟢 Veg
-                    </button>
-                    <button class="filter-btn" data-filter="non-veg" onclick="filterRestaurants('non-veg', this)">
-                        🔴 Non-Veg
-                    </button>
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="restaurant-search" 
+                            placeholder="Search for restaurants..."
+                            oninput="filterRestaurantsBySearch()"
+                        >
+                    </div>
                 </div>
 
                 <div id="restaurants-list"></div>
@@ -863,6 +884,20 @@
             <div class="container">
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
                 <h2 class="section-title" id="restaurant-menu-title">Menu</h2>
+                
+                <!-- Veg/Non-Veg Filter (Only in Menu) -->
+                <div class="filter-container">
+                    <button class="filter-btn active" onclick="filterMenuItems('all', this)">
+                        🍽️ All
+                    </button>
+                    <button class="filter-btn" onclick="filterMenuItems('veg', this)">
+                        🟢 Veg
+                    </button>
+                    <button class="filter-btn" onclick="filterMenuItems('non-veg', this)">
+                        🔴 Non-Veg
+                    </button>
+                </div>
+
                 <div id="menu-items-list"></div>
             </div>
         </div>
@@ -886,7 +921,7 @@
                         <span>Total</span>
                         <span id="total">₹0</span>
                     </div>
-                    <button class="checkout-btn" onclick="placeOrder()">Place Order</button>
+                    <button class="checkout-btn" onclick="initiatePayment()">Pay with Razorpay</button>
                 </div>
             </div>
         </div>
@@ -896,9 +931,10 @@
             <div class="container">
                 <div class="order-success">
                     <div class="success-icon">✓</div>
-                    <h2>Order Placed Successfully!</h2>
+                    <h2>Payment Successful!</h2>
                     <div class="order-number" id="order-number">#12345</div>
-                    <p>Your order will be ready in 15-20 minutes</p>
+                    <p>Your order has been placed successfully</p>
+                    <p style="font-size: 14px; color: #666; margin-top: 8px;">Pickup in 15-20 minutes</p>
                     
                     <div class="order-details" id="order-details"></div>
                     
@@ -955,6 +991,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
+        // ============================================
+        // RAZORPAY CONFIGURATION
+        // ============================================
+        const RAZORPAY_KEY_ID = 'YOUR_RAZORPAY_KEY_ID'; // Replace with your key
+
         const firebaseConfig = {
             apiKey: "AIzaSyBlJSNdxM2xzaHMdbPiFqhHKfhkt5Jgqv0",
             authDomain: "campus-eats-007.firebaseapp.com",
@@ -972,7 +1013,8 @@
         let currentRestaurant = null;
         let allRestaurants = [];
         let allMenuItems = [];
-        let currentFilter = 'all';
+        let currentMenuFilter = 'all';
+        let currentMenuItems = [];
 
         function hashPIN(pin) {
             return CryptoJS.SHA256(pin).toString();
@@ -1098,7 +1140,6 @@
                     allRestaurants.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Load all menu items
                 const menuSnapshot = await db.collection('menu_items').get();
                 allMenuItems = [];
                 menuSnapshot.forEach(doc => {
@@ -1112,33 +1153,20 @@
             }
         }
 
-        function filterRestaurants(filter, button) {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            displayRestaurants();
+        function filterRestaurantsBySearch() {
+            const searchTerm = document.getElementById('restaurant-search').value.toLowerCase();
+            displayRestaurants(searchTerm);
         }
 
-        function displayRestaurants() {
+        function displayRestaurants(searchTerm = '') {
             const container = document.getElementById('restaurants-list');
             
-            let filtered = allRestaurants;
-            
-            // Filter restaurants based on their menu items
-            if (currentFilter === 'veg') {
-                filtered = allRestaurants.filter(restaurant => {
-                    const menuItems = allMenuItems.filter(item => item.vendorId === restaurant.id);
-                    return menuItems.some(item => item.type && item.type.toLowerCase() === 'veg');
-                });
-            } else if (currentFilter === 'non-veg') {
-                filtered = allRestaurants.filter(restaurant => {
-                    const menuItems = allMenuItems.filter(item => item.vendorId === restaurant.id);
-                    return menuItems.some(item => item.type && item.type.toLowerCase() === 'non-veg');
-                });
-            }
+            let filtered = allRestaurants.filter(restaurant => 
+                restaurant.name.toLowerCase().includes(searchTerm)
+            );
 
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🍽️</div><p>No restaurants available</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>No restaurants found</p></div>';
                 return;
             }
 
@@ -1164,19 +1192,27 @@
 
         async function openRestaurant(vendorId) {
             currentRestaurant = allRestaurants.find(r => r.id === vendorId);
+            currentMenuFilter = 'all';
             
             try {
                 const snapshot = await db.collection('menu_items')
                     .where('vendorId', '==', vendorId)
                     .get();
                 
-                const items = [];
+                currentMenuItems = [];
                 snapshot.forEach(doc => {
-                    items.push({ id: doc.id, ...doc.data() });
+                    currentMenuItems.push({ id: doc.id, ...doc.data() });
                 });
 
                 document.getElementById('restaurant-menu-title').textContent = currentRestaurant.name;
-                displayMenuItemsByCategory(items);
+                
+                // Reset filter buttons
+                document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('#restaurant-menu-screen .filter-btn')[0].classList.add('active');
+                
+                displayMenuItemsByCategory(currentMenuItems);
                 navigateTo('restaurant-menu-screen');
             } catch (error) {
                 console.error('Error loading menu:', error);
@@ -1184,15 +1220,29 @@
             }
         }
 
+        function filterMenuItems(filter, button) {
+            currentMenuFilter = filter;
+            document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            let filtered = currentMenuItems;
+            if (filter === 'veg') {
+                filtered = currentMenuItems.filter(item => item.type && item.type.toLowerCase() === 'veg');
+            } else if (filter === 'non-veg') {
+                filtered = currentMenuItems.filter(item => item.type && item.type.toLowerCase() === 'non-veg');
+            }
+            
+            displayMenuItemsByCategory(filtered);
+        }
+
         function displayMenuItemsByCategory(items) {
             const container = document.getElementById('menu-items-list');
             
             if (items.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🍽️</div><p>No menu items available</p></div>';
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🍽️</div><p>No items found</p></div>';
                 return;
             }
 
-            // Group items by category
             const categories = {};
             items.forEach(item => {
                 const category = item.category || 'Other';
@@ -1202,7 +1252,6 @@
                 categories[category].push(item);
             });
 
-            // Build HTML with category sections
             let html = '';
             for (const [category, categoryItems] of Object.entries(categories)) {
                 html += `
@@ -1248,14 +1297,14 @@
         function addToCart(item) {
             cart.push({ ...item, quantity: 1 });
             updateCartCount();
-            openRestaurant(currentRestaurant.id);
+            filterMenuItems(currentMenuFilter, document.querySelector('#restaurant-menu-screen .filter-btn.active'));
         }
 
         function increaseQuantity(itemId) {
             const item = cart.find(c => c.id === itemId);
             if (item) item.quantity++;
             updateCartCount();
-            openRestaurant(currentRestaurant.id);
+            filterMenuItems(currentMenuFilter, document.querySelector('#restaurant-menu-screen .filter-btn.active'));
         }
 
         function decreaseQuantity(itemId) {
@@ -1267,7 +1316,7 @@
                 }
             }
             updateCartCount();
-            openRestaurant(currentRestaurant.id);
+            filterMenuItems(currentMenuFilter, document.querySelector('#restaurant-menu-screen .filter-btn.active'));
         }
 
         function displayCart() {
@@ -1306,25 +1355,64 @@
             summary.style.display = 'block';
         }
 
-        async function placeOrder() {
+        // ============================================
+        // RAZORPAY PAYMENT INTEGRATION
+        // ============================================
+        function initiatePayment() {
             if (cart.length === 0) return;
 
-            const orderNumber = 'CE' + Date.now().toString().slice(-8);
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const total = subtotal + Math.round(subtotal * 0.05);
+            const amountInPaise = total * 100; // Razorpay accepts amount in paise
+
+            const options = {
+                key: RAZORPAY_KEY_ID,
+                amount: amountInPaise,
+                currency: 'INR',
+                name: 'Campus Eats',
+                description: `Order from ${currentRestaurant.name}`,
+                image: 'https://your-logo-url.com/logo.png', // Optional: Your app logo
+                prefill: {
+                    name: currentUser.name || 'Student',
+                    email: `${currentUser.srn}@student.edu`, // Optional
+                    contact: '' // Optional: Add phone number if you collect it
+                },
+                theme: {
+                    color: '#ff6b35'
+                },
+                handler: function(response) {
+                    // Payment successful
+                    handlePaymentSuccess(response, total);
+                },
+                modal: {
+                    ondismiss: function() {
+                        showNotification('Payment cancelled');
+                    }
+                }
+            };
+
+            const razorpay = new Razorpay(options);
+            razorpay.open();
+        }
+
+        async function handlePaymentSuccess(paymentResponse, total) {
+            const orderNumber = 'CE' + Date.now().toString().slice(-8);
 
             try {
+                // Save order to Firestore
                 await db.collection('orders').add({
                     orderNumber,
                     srn: currentUser.srn,
                     items: cart,
                     total,
-                    status: 'pending',
+                    status: 'paid',
+                    paymentId: paymentResponse.razorpay_payment_id,
                     vendorId: currentRestaurant.id,
                     vendorName: currentRestaurant.name,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
+                // Display order confirmation
                 document.getElementById('order-number').textContent = `#${orderNumber}`;
                 document.getElementById('order-details').innerHTML = `
                     <div class="summary-row">
@@ -1335,8 +1423,12 @@
                         <span>Items</span>
                         <span>${cart.length}</span>
                     </div>
+                    <div class="summary-row">
+                        <span>Payment ID</span>
+                        <span style="font-size: 12px; color: #666;">${paymentResponse.razorpay_payment_id}</span>
+                    </div>
                     <div class="summary-row total">
-                        <span>Total Paid</span>
+                        <span>Amount Paid</span>
                         <span>₹${total}</span>
                     </div>
                 `;
@@ -1345,9 +1437,11 @@
                 updateCartCount();
                 navigateTo('order-confirm-screen');
                 loadOrderHistory();
+                
+                showNotification('Payment successful!');
             } catch (error) {
-                showNotification('Order placement failed!');
-                console.error(error);
+                console.error('Error saving order:', error);
+                showNotification('Payment successful but order save failed!');
             }
         }
 
@@ -1376,7 +1470,7 @@
                         </div>
                         <div style="text-align: right;">
                             <div style="font-weight: 700; color: #ff6b35;">₹${order.total}</div>
-                            <div style="font-size: 13px; color: #666;">${order.status}</div>
+                            <div style="font-size: 13px; color: #10b981;">${order.status}</div>
                         </div>
                     </div>
                 `).join('');
