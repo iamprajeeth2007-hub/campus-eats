@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Eats - Food Delivery</title>
     
-    <!-- CryptoJS for PIN hashing -->
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
     
     <style>
@@ -21,7 +20,6 @@
             min-height: 100vh;
         }
 
-        /* Header Styles */
         .app-header {
             background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
             color: white;
@@ -101,7 +99,6 @@
             border: 2px solid white;
         }
 
-        /* Sidebar Menu */
         .sidebar {
             position: fixed;
             top: 0;
@@ -194,7 +191,6 @@
             display: block;
         }
 
-        /* Container */
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -209,7 +205,6 @@
             display: block;
         }
 
-        /* Login/Register Screens */
         .auth-card {
             background: white;
             border-radius: 24px;
@@ -303,7 +298,6 @@
             margin-top: 12px;
         }
 
-        /* Filter Buttons */
         .filter-container {
             display: flex;
             gap: 12px;
@@ -337,7 +331,6 @@
             border-color: #ff6b35;
         }
 
-        /* Restaurant Cards */
         .restaurant-card {
             background: white;
             border-radius: 16px;
@@ -405,7 +398,20 @@
             color: #666;
         }
 
-        /* Menu Items */
+        /* Menu Category Section */
+        .category-section {
+            margin-bottom: 32px;
+        }
+
+        .category-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            padding: 12px 0;
+            margin-bottom: 16px;
+            border-bottom: 3px solid #ff6b35;
+        }
+
         .menu-item-card {
             background: white;
             border-radius: 16px;
@@ -528,7 +534,6 @@
             text-align: center;
         }
 
-        /* Cart */
         .cart-item {
             background: white;
             border-radius: 12px;
@@ -597,7 +602,6 @@
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
         }
 
-        /* Order Confirmation */
         .order-success {
             text-align: center;
             padding: 40px 20px;
@@ -718,15 +722,12 @@
     </style>
 </head>
 <body>
-    <!-- Notification -->
     <div id="notification" class="notification">
         <div id="notification-message"></div>
     </div>
 
-    <!-- Overlay for sidebar -->
     <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
-    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-profile">
@@ -821,9 +822,8 @@
         </div>
     </div>
 
-    <!-- Main App (After Login) -->
+    <!-- Main App -->
     <div id="main-app" class="screen">
-        <!-- Header -->
         <div class="app-header">
             <div class="header-left">
                 <button class="menu-btn" onclick="openSidebar()">☰</button>
@@ -837,19 +837,19 @@
             </div>
         </div>
 
-        <!-- Home Screen - Restaurants -->
+        <!-- Home Screen -->
         <div id="home-screen" class="screen active">
             <div class="container">
                 <h2 class="section-title">Restaurants</h2>
                 
                 <div class="filter-container">
-                    <button class="filter-btn active" onclick="filterRestaurants('all')">
+                    <button class="filter-btn active" data-filter="all" onclick="filterRestaurants('all', this)">
                         🍽️ All
                     </button>
-                    <button class="filter-btn" onclick="filterRestaurants('veg')">
+                    <button class="filter-btn" data-filter="veg" onclick="filterRestaurants('veg', this)">
                         🟢 Veg
                     </button>
-                    <button class="filter-btn" onclick="filterRestaurants('non-veg')">
+                    <button class="filter-btn" data-filter="non-veg" onclick="filterRestaurants('non-veg', this)">
                         🔴 Non-Veg
                     </button>
                 </div>
@@ -951,12 +951,10 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBlJSNdxM2xzaHMdbPiFqhHKfhkt5Jgqv0",
             authDomain: "campus-eats-007.firebaseapp.com",
@@ -969,14 +967,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Global State
         let currentUser = null;
         let cart = [];
         let currentRestaurant = null;
         let allRestaurants = [];
+        let allMenuItems = [];
         let currentFilter = 'all';
 
-        // Helper Functions
         function hashPIN(pin) {
             return CryptoJS.SHA256(pin).toString();
         }
@@ -998,6 +995,10 @@
             const mainApp = document.getElementById('main-app');
             mainApp.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            
+            if (screenId === 'cart-screen') {
+                displayCart();
+            }
         }
 
         function openSidebar() {
@@ -1015,7 +1016,6 @@
             document.getElementById('cart-count').textContent = count;
         }
 
-        // Register
         async function registerStudent(e) {
             e.preventDefault();
             const srn = document.getElementById('register-srn').value.toUpperCase();
@@ -1049,7 +1049,6 @@
             }
         }
 
-        // Login
         async function loginStudent(e) {
             e.preventDefault();
             const srn = document.getElementById('login-srn').value.toUpperCase();
@@ -1077,23 +1076,19 @@
             }
         }
 
-        // Load App
         async function loadApp() {
             showScreen('main-app');
             
-            // Update sidebar
             document.getElementById('sidebar-srn').textContent = `SRN: ${currentUser.srn}`;
             document.getElementById('sidebar-name').textContent = currentUser.name || 'Guest User';
             
-            // Load profile data
             document.getElementById('profile-srn').value = currentUser.srn;
             document.getElementById('profile-name').value = currentUser.name || '';
             
-            loadRestaurants();
+            await loadRestaurants();
             loadOrderHistory();
         }
 
-        // Load Restaurants
         async function loadRestaurants() {
             try {
                 const snapshot = await db.collection('vendors').get();
@@ -1103,21 +1098,43 @@
                     allRestaurants.push({ id: doc.id, ...doc.data() });
                 });
 
+                // Load all menu items
+                const menuSnapshot = await db.collection('menu_items').get();
+                allMenuItems = [];
+                menuSnapshot.forEach(doc => {
+                    allMenuItems.push({ id: doc.id, ...doc.data() });
+                });
+
                 displayRestaurants();
             } catch (error) {
                 console.error('Error loading restaurants:', error);
+                showNotification('Error loading restaurants');
             }
         }
 
-        // Display Restaurants
+        function filterRestaurants(filter, button) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            displayRestaurants();
+        }
+
         function displayRestaurants() {
             const container = document.getElementById('restaurants-list');
             
             let filtered = allRestaurants;
+            
+            // Filter restaurants based on their menu items
             if (currentFilter === 'veg') {
-                filtered = allRestaurants.filter(r => r.type === 'veg');
+                filtered = allRestaurants.filter(restaurant => {
+                    const menuItems = allMenuItems.filter(item => item.vendorId === restaurant.id);
+                    return menuItems.some(item => item.type && item.type.toLowerCase() === 'veg');
+                });
             } else if (currentFilter === 'non-veg') {
-                filtered = allRestaurants.filter(r => r.type === 'non-veg' || r.type === 'both');
+                filtered = allRestaurants.filter(restaurant => {
+                    const menuItems = allMenuItems.filter(item => item.vendorId === restaurant.id);
+                    return menuItems.some(item => item.type && item.type.toLowerCase() === 'non-veg');
+                });
             }
 
             if (filtered.length === 0) {
@@ -1145,15 +1162,6 @@
             `).join('');
         }
 
-        // Filter Restaurants
-        function filterRestaurants(filter) {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            displayRestaurants();
-        }
-
-        // Open Restaurant
         async function openRestaurant(vendorId) {
             currentRestaurant = allRestaurants.find(r => r.id === vendorId);
             
@@ -1168,15 +1176,15 @@
                 });
 
                 document.getElementById('restaurant-menu-title').textContent = currentRestaurant.name;
-                displayMenuItems(items);
+                displayMenuItemsByCategory(items);
                 navigateTo('restaurant-menu-screen');
             } catch (error) {
                 console.error('Error loading menu:', error);
+                showNotification('Error loading menu');
             }
         }
 
-        // Display Menu Items
-        function displayMenuItems(items) {
+        function displayMenuItemsByCategory(items) {
             const container = document.getElementById('menu-items-list');
             
             if (items.length === 0) {
@@ -1184,39 +1192,59 @@
                 return;
             }
 
-            container.innerHTML = items.map(item => {
-                const cartItem = cart.find(c => c.id === item.id);
-                const quantity = cartItem ? cartItem.quantity : 0;
-                
-                return `
-                    <div class="menu-item-card">
-                        <div class="menu-item-info">
-                            <div class="menu-item-header">
-                                <div class="veg-indicator ${item.type === 'non-veg' ? 'non-veg' : ''}">
-                                    <div class="veg-dot ${item.type === 'non-veg' ? 'non-veg' : ''}"></div>
+            // Group items by category
+            const categories = {};
+            items.forEach(item => {
+                const category = item.category || 'Other';
+                if (!categories[category]) {
+                    categories[category] = [];
+                }
+                categories[category].push(item);
+            });
+
+            // Build HTML with category sections
+            let html = '';
+            for (const [category, categoryItems] of Object.entries(categories)) {
+                html += `
+                    <div class="category-section">
+                        <div class="category-header">${category}</div>
+                        ${categoryItems.map(item => {
+                            const cartItem = cart.find(c => c.id === item.id);
+                            const quantity = cartItem ? cartItem.quantity : 0;
+                            const isVeg = item.type && item.type.toLowerCase() === 'veg';
+                            
+                            return `
+                                <div class="menu-item-card">
+                                    <div class="menu-item-info">
+                                        <div class="menu-item-header">
+                                            <div class="veg-indicator ${!isVeg ? 'non-veg' : ''}">
+                                                <div class="veg-dot ${!isVeg ? 'non-veg' : ''}"></div>
+                                            </div>
+                                            <div class="menu-item-name">${item.name}</div>
+                                        </div>
+                                        <div class="menu-item-price">₹${item.price}</div>
+                                    </div>
+                                    <div class="menu-item-actions">
+                                        ${quantity === 0 ? `
+                                            <button class="add-btn" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&#39;")})'>Add</button>
+                                        ` : `
+                                            <div class="quantity-controls">
+                                                <button class="qty-btn" onclick='decreaseQuantity("${item.id}")'>-</button>
+                                                <div class="qty-display">${quantity}</div>
+                                                <button class="qty-btn" onclick='increaseQuantity("${item.id}")'>+</button>
+                                            </div>
+                                        `}
+                                    </div>
                                 </div>
-                                <div class="menu-item-name">${item.name}</div>
-                            </div>
-                            <div class="menu-item-desc">${item.description || ''}</div>
-                            <div class="menu-item-price">₹${item.price}</div>
-                        </div>
-                        <div class="menu-item-actions">
-                            ${quantity === 0 ? `
-                                <button class="add-btn" onclick='addToCart(${JSON.stringify(item)})'>Add</button>
-                            ` : `
-                                <div class="quantity-controls">
-                                    <button class="qty-btn" onclick='decreaseQuantity("${item.id}")'>-</button>
-                                    <div class="qty-display">${quantity}</div>
-                                    <button class="qty-btn" onclick='increaseQuantity("${item.id}")'>+</button>
-                                </div>
-                            `}
-                        </div>
+                            `;
+                        }).join('')}
                     </div>
                 `;
-            }).join('');
+            }
+
+            container.innerHTML = html;
         }
 
-        // Cart Functions
         function addToCart(item) {
             cart.push({ ...item, quantity: 1 });
             updateCartCount();
@@ -1278,7 +1306,6 @@
             summary.style.display = 'block';
         }
 
-        // Place Order
         async function placeOrder() {
             if (cart.length === 0) return;
 
@@ -1324,7 +1351,6 @@
             }
         }
 
-        // Load Order History
         async function loadOrderHistory() {
             try {
                 const snapshot = await db.collection('orders')
@@ -1359,7 +1385,6 @@
             }
         }
 
-        // Update Profile
         async function updateProfile(e) {
             e.preventDefault();
             const name = document.getElementById('profile-name').value;
@@ -1375,7 +1400,6 @@
             }
         }
 
-        // Logout
         function logout() {
             localStorage.removeItem('srn');
             currentUser = null;
@@ -1384,7 +1408,6 @@
             closeSidebar();
         }
 
-        // Auto-login on page load
         window.addEventListener('DOMContentLoaded', async () => {
             const srn = localStorage.getItem('srn');
             if (srn) {
@@ -1399,20 +1422,11 @@
                 }
             }
 
-            // Auto-uppercase SRN inputs
             document.querySelectorAll('.srn-input').forEach(input => {
                 input.addEventListener('input', e => {
                     e.target.value = e.target.value.toUpperCase();
                 });
             });
-
-            // Update cart display when navigating to cart
-            const cartScreenObserver = new MutationObserver(() => {
-                if (document.getElementById('cart-screen').classList.contains('active')) {
-                    displayCart();
-                }
-            });
-            cartScreenObserver.observe(document.getElementById('cart-screen'), { attributes: true });
         });
     </script>
 </body>
