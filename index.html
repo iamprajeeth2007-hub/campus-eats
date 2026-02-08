@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Eats - Student Login</title>
+    <title>Campus Eats - Food Delivery</title>
     
     <!-- CryptoJS for PIN hashing -->
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
@@ -16,45 +16,207 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
             min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .app-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .app-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cart-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .cart-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc2626;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 2px solid white;
         }
 
-        .container {
+        /* Sidebar Menu */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 24px 20px;
+        }
+
+        .sidebar-profile {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .profile-icon {
+            width: 56px;
+            height: 56px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .profile-info h3 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .sidebar-menu {
+            padding: 16px 0;
+        }
+
+        .sidebar-item {
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border: none;
+            background: none;
             width: 100%;
-            max-width: 420px;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .sidebar-item:hover {
+            background: #f5f5f5;
+        }
+
+        .sidebar-item-icon {
+            font-size: 24px;
+            width: 32px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
         .screen {
             display: none;
-            animation: fadeIn 0.4s ease;
         }
 
         .screen.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card {
+        /* Login/Register Screens */
+        .auth-card {
             background: white;
             border-radius: 24px;
             padding: 40px 32px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 420px;
+            margin: 60px auto;
         }
 
         .logo {
@@ -65,7 +227,7 @@
         .logo-icon {
             width: 72px;
             height: 72px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -98,68 +260,19 @@
             margin-bottom: 8px;
         }
 
-        .input-wrapper {
-            position: relative;
-        }
-
         input {
             width: 100%;
             padding: 16px;
             font-size: 16px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
-            transition: all 0.3s ease;
-            font-family: inherit;
+            transition: all 0.3s;
         }
 
         input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-
-        input.error {
-            border-color: #ef4444;
-            animation: shake 0.4s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        input::placeholder {
-            color: #aaa;
-        }
-
-        .pin-input {
-            letter-spacing: 8px;
-            font-size: 24px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .srn-input {
-            text-transform: uppercase;
-        }
-
-        .toggle-pin {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 4px;
-            color: #666;
-            transition: color 0.3s ease;
-        }
-
-        .toggle-pin:hover {
-            color: #667eea;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
         }
 
         .btn {
@@ -170,30 +283,18 @@
             border: none;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: inherit;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
         }
 
         .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-        }
-
-        .btn-primary:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
         }
 
         .btn-secondary {
@@ -202,31 +303,400 @@
             margin-top: 12px;
         }
 
-        .btn-secondary:hover {
-            background: #e0e0e0;
+        /* Filter Buttons */
+        .filter-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 0 4px;
         }
 
-        .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
+        .filter-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border-color: #ff6b35;
+        }
+
+        .filter-btn:hover {
+            border-color: #ff6b35;
+        }
+
+        /* Restaurant Cards */
+        .restaurant-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .restaurant-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+        }
+
+        .restaurant-info {
+            padding: 16px;
+        }
+
+        .restaurant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .restaurant-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .restaurant-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .restaurant-type {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .restaurant-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Menu Items */
+        .menu-item-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .menu-item-info {
+            flex: 1;
+        }
+
+        .menu-item-header {
+            display: flex;
+            align-items: start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .veg-indicator {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .veg-indicator.non-veg {
+            border-color: #ef4444;
+        }
+
+        .veg-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .veg-dot.non-veg {
+            background: #ef4444;
         }
 
-        .btn-primary.loading .btn-text {
+        .menu-item-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .menu-item-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .menu-item-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff6b35;
+        }
+
+        .menu-item-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .add-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f5f5f5;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .qty-btn {
+            background: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #ff6b35;
+        }
+
+        .qty-btn:hover {
+            background: #ff6b35;
+            color: white;
+        }
+
+        .qty-display {
+            font-weight: 700;
+            font-size: 16px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* Cart */
+        .cart-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-item-info h4 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .cart-item-info p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .cart-item-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .cart-summary {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .summary-row.total {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff6b35;
+            padding-top: 12px;
+            border-top: 2px solid #f0f0f0;
+            margin-top: 12px;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.3s;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Order Confirmation */
+        .order-success {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 48px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .order-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ff6b35;
+            margin: 16px 0;
+        }
+
+        .order-details {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
+            text-align: left;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             display: none;
+            z-index: 1000;
+            border-left: 4px solid #10b981;
         }
 
-        .btn-primary.loading .spinner {
+        .notification.show {
             display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .back-btn {
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
         }
 
         .helper-text {
@@ -235,464 +705,248 @@
             margin-top: 8px;
         }
 
-        .helper-text.error {
-            color: #ef4444;
-        }
-
-        .divider {
+        .pin-input {
+            letter-spacing: 8px;
             text-align: center;
-            margin: 24px 0;
-            position: relative;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 16px;
-            color: #999;
-            font-size: 14px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e0e0e0;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transform: translateX(400px);
-            transition: transform 0.4s ease;
-            z-index: 1000;
-            max-width: 320px;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification.success {
-            border-left: 4px solid #10b981;
-        }
-
-        .notification.error {
-            border-left: 4px solid #ef4444;
-        }
-
-        .notification-icon {
             font-size: 24px;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
             font-weight: 600;
-            font-size: 14px;
-            color: #1a1a1a;
-            margin-bottom: 2px;
         }
 
-        .notification-message {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .info-box {
-            background: #f0f7ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 24px;
-        }
-
-        .info-box-title {
-            font-weight: 600;
-            color: #1e40af;
-            font-size: 14px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-box-content {
-            font-size: 13px;
-            color: #1e40af;
-            line-height: 1.6;
-        }
-
-        /* Home Screen Styles */
-        .home-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 24px 20px;
-            border-radius: 24px 24px 0 0;
-            margin: -40px -32px 32px;
-        }
-
-        .home-header h2 {
-            font-size: 24px;
-            margin-bottom: 4px;
-        }
-
-        .home-header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .menu-item {
-            background: #f9fafb;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .menu-item:hover {
-            background: white;
-            border-color: #667eea;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
-        }
-
-        .menu-item-icon {
-            font-size: 36px;
-            margin-bottom: 8px;
-        }
-
-        .menu-item-title {
-            font-weight: 600;
-            color: #1a1a1a;
-            font-size: 15px;
-        }
-
-        .logout-btn {
-            background: #fee;
-            color: #dc2626;
-            border: 2px solid #fecaca;
-        }
-
-        .logout-btn:hover {
-            background: #fef2f2;
-            border-color: #dc2626;
-        }
-
-        /* Menu Screen Styles */
-        .menu-card {
-            background: #f9fafb;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .menu-card:hover {
-            background: white;
-            border-color: #667eea;
-            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.2);
-        }
-
-        .menu-title {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 6px;
-            color: #1a1a1a;
-        }
-
-        .menu-price {
-            font-weight: 600;
-            color: #667eea;
-            font-size: 18px;
-        }
-
-        .menu-description {
-            font-size: 13px;
-            color: #666;
-            margin-top: 4px;
-        }
-
-        .loading-text {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-            font-size: 15px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-state-text {
-            color: #666;
-            font-size: 15px;
-        }
-
-        @media (max-width: 480px) {
-            .card {
-                padding: 32px 24px;
-            }
-
-            .notification {
-                right: 10px;
-                left: 10px;
-                max-width: none;
-            }
+        .srn-input {
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
-    <!-- Notification Toast -->
+    <!-- Notification -->
     <div id="notification" class="notification">
-        <div class="notification-icon">ℹ️</div>
-        <div class="notification-content">
-            <div class="notification-title">Notification</div>
-            <div class="notification-message">Message here</div>
+        <div id="notification-message"></div>
+    </div>
+
+    <!-- Overlay for sidebar -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-profile">
+                <div class="profile-icon">👤</div>
+                <div class="profile-info">
+                    <h3 id="sidebar-name">Guest User</h3>
+                    <p id="sidebar-srn">Not logged in</p>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-menu">
+            <button class="sidebar-item" onclick="navigateTo('profile-screen')">
+                <span class="sidebar-item-icon">👤</span>
+                <span>Profile</span>
+            </button>
+            <button class="sidebar-item" onclick="navigateTo('order-history-screen')">
+                <span class="sidebar-item-icon">📦</span>
+                <span>Order History</span>
+            </button>
+            <button class="sidebar-item" onclick="navigateTo('settings-screen')">
+                <span class="sidebar-item-icon">⚙️</span>
+                <span>Settings</span>
+            </button>
+            <button class="sidebar-item" onclick="logout()">
+                <span class="sidebar-item-icon">🚪</span>
+                <span>Logout</span>
+            </button>
         </div>
     </div>
 
-    <div class="container">
-        <!-- Welcome Screen -->
-        <div id="welcome-screen" class="screen active">
-            <div class="card">
-                <div class="logo">
-                    <div class="logo-icon">🍽️</div>
-                    <h1>Campus Eats</h1>
-                    <p>Your campus food ordering app</p>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen active">
+        <div class="auth-card">
+            <div class="logo">
+                <div class="logo-icon">🍽️</div>
+                <h1>Campus Eats</h1>
+                <p>Order food from campus vendors</p>
+            </div>
+            <button class="btn btn-primary" onclick="showScreen('login-screen')">Login with SRN</button>
+            <button class="btn btn-secondary" onclick="showScreen('register-screen')">New Student? Register</button>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen">
+        <div class="auth-card">
+            <div class="logo">
+                <div class="logo-icon">🔐</div>
+                <h1>Login</h1>
+                <p>Enter your credentials</p>
+            </div>
+            <form onsubmit="loginStudent(event)">
+                <div class="form-group">
+                    <label>Student SRN</label>
+                    <input type="text" id="login-srn" class="srn-input" placeholder="R25EA170" required maxlength="8">
                 </div>
-
-                <button class="btn btn-primary" onclick="showScreen('login-screen')">
-                    <span class="btn-text">Login with SRN</span>
-                    <div class="spinner"></div>
-                </button>
-
-                <button class="btn btn-secondary" onclick="showScreen('register-screen')">
-                    New Student? Register Here
-                </button>
-
-                <div class="info-box">
-                    <div class="info-box-title">
-                        <span>ℹ️</span>
-                        <span>First Time?</span>
-                    </div>
-                    <div class="info-box-content">
-                        Register with your SRN and create a 4-digit PIN. Your SRN can be entered in any case (uppercase or lowercase).
-                    </div>
+                <div class="form-group">
+                    <label>4-Digit PIN</label>
+                    <input type="password" id="login-pin" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}">
                 </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">Back</button>
+        </div>
+    </div>
+
+    <!-- Register Screen -->
+    <div id="register-screen" class="screen">
+        <div class="auth-card">
+            <div class="logo">
+                <div class="logo-icon">📝</div>
+                <h1>Register</h1>
+                <p>Create your account</p>
+            </div>
+            <form onsubmit="registerStudent(event)">
+                <div class="form-group">
+                    <label>Student SRN</label>
+                    <input type="text" id="register-srn" class="srn-input" placeholder="R25EA170" required maxlength="8">
+                    <div class="helper-text">Format: R25EA170</div>
+                </div>
+                <div class="form-group">
+                    <label>Create 4-Digit PIN</label>
+                    <input type="password" id="register-pin" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}">
+                </div>
+                <div class="form-group">
+                    <label>Confirm PIN</label>
+                    <input type="password" id="register-pin-confirm" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}">
+                </div>
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </form>
+            <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">Back</button>
+        </div>
+    </div>
+
+    <!-- Main App (After Login) -->
+    <div id="main-app" class="screen">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="header-left">
+                <button class="menu-btn" onclick="openSidebar()">☰</button>
+                <div class="app-title">Campus Eats</div>
+            </div>
+            <div class="header-right">
+                <button class="cart-btn" onclick="navigateTo('cart-screen')">
+                    🛒
+                    <span class="cart-count" id="cart-count">0</span>
+                </button>
             </div>
         </div>
 
-        <!-- Login Screen -->
-        <div id="login-screen" class="screen">
-            <div class="card">
-                <div class="logo">
-                    <div class="logo-icon">🔐</div>
-                    <h1>Login</h1>
-                    <p>Enter your credentials</p>
-                </div>
-
-                <form id="login-form" onsubmit="loginStudent(event)">
-                    <div class="form-group">
-                        <label for="login-srn">Student SRN</label>
-                        <input 
-                            type="text" 
-                            id="login-srn" 
-                            class="srn-input"
-                            placeholder="R25EA170" 
-                            required
-                            autocomplete="off"
-                            maxlength="8"
-                        >
-                        <div class="helper-text">Example: R25EA170 (case insensitive)</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="login-pin">4-Digit PIN</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="password" 
-                                id="login-pin" 
-                                class="pin-input"
-                                placeholder="••••" 
-                                required
-                                maxlength="4"
-                                pattern="[0-9]{4}"
-                                inputmode="numeric"
-                            >
-                            <button type="button" class="toggle-pin" onclick="togglePinVisibility('login-pin')">
-                                👁️
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        <span class="btn-text">Login</span>
-                        <div class="spinner"></div>
+        <!-- Home Screen - Restaurants -->
+        <div id="home-screen" class="screen active">
+            <div class="container">
+                <h2 class="section-title">Restaurants</h2>
+                
+                <div class="filter-container">
+                    <button class="filter-btn active" onclick="filterRestaurants('all')">
+                        🍽️ All
                     </button>
-                </form>
-
-                <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">
-                    Back
-                </button>
-            </div>
-        </div>
-
-        <!-- Register Screen -->
-        <div id="register-screen" class="screen">
-            <div class="card">
-                <div class="logo">
-                    <div class="logo-icon">📝</div>
-                    <h1>Register</h1>
-                    <p>Create your account</p>
-                </div>
-
-                <form id="register-form" onsubmit="registerStudent(event)">
-                    <div class="form-group">
-                        <label for="register-srn">Student SRN</label>
-                        <input 
-                            type="text" 
-                            id="register-srn" 
-                            class="srn-input"
-                            placeholder="R25EA170" 
-                            required
-                            autocomplete="off"
-                            maxlength="8"
-                        >
-                        <div class="helper-text">Format: Letter + 2 digits + 2 letters + 3 digits</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="register-pin">Create 4-Digit PIN</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="password" 
-                                id="register-pin" 
-                                class="pin-input"
-                                placeholder="••••" 
-                                required
-                                maxlength="4"
-                                pattern="[0-9]{4}"
-                                inputmode="numeric"
-                            >
-                            <button type="button" class="toggle-pin" onclick="togglePinVisibility('register-pin')">
-                                👁️
-                            </button>
-                        </div>
-                        <div class="helper-text">Choose a memorable 4-digit PIN</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="register-pin-confirm">Confirm PIN</label>
-                        <div class="input-wrapper">
-                            <input 
-                                type="password" 
-                                id="register-pin-confirm" 
-                                class="pin-input"
-                                placeholder="••••" 
-                                required
-                                maxlength="4"
-                                pattern="[0-9]{4}"
-                                inputmode="numeric"
-                            >
-                            <button type="button" class="toggle-pin" onclick="togglePinVisibility('register-pin-confirm')">
-                                👁️
-                            </button>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        <span class="btn-text">Create Account</span>
-                        <div class="spinner"></div>
+                    <button class="filter-btn" onclick="filterRestaurants('veg')">
+                        🟢 Veg
                     </button>
-                </form>
+                    <button class="filter-btn" onclick="filterRestaurants('non-veg')">
+                        🔴 Non-Veg
+                    </button>
+                </div>
 
-                <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">
-                    Back
-                </button>
+                <div id="restaurants-list"></div>
             </div>
         </div>
 
-        <!-- Home Screen (After Login) -->
-        <div id="home-screen" class="screen">
-            <div class="card">
-                <div class="home-header">
-                    <h2>Welcome Back! 👋</h2>
-                    <p id="student-srn">SRN: R25EA170</p>
-                </div>
-
-                <div class="menu-grid">
-                    <div class="menu-item" onclick="loadMenu()">
-                        <div class="menu-item-icon">📋</div>
-                        <div class="menu-item-title">Browse Menu</div>
-                    </div>
-
-                    <div class="menu-item" onclick="alert('My Orders feature coming soon!')">
-                        <div class="menu-item-icon">🛒</div>
-                        <div class="menu-item-title">My Orders</div>
-                    </div>
-
-                    <div class="menu-item" onclick="alert('Order History feature coming soon!')">
-                        <div class="menu-item-icon">📦</div>
-                        <div class="menu-item-title">History</div>
-                    </div>
-
-                    <div class="menu-item" onclick="alert('Profile Settings feature coming soon!')">
-                        <div class="menu-item-icon">⚙️</div>
-                        <div class="menu-item-title">Settings</div>
-                    </div>
-                </div>
-
-                <button class="btn btn-secondary logout-btn" onclick="logout()">
-                    Logout
-                </button>
+        <!-- Restaurant Menu Screen -->
+        <div id="restaurant-menu-screen" class="screen">
+            <div class="container">
+                <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
+                <h2 class="section-title" id="restaurant-menu-title">Menu</h2>
+                <div id="menu-items-list"></div>
             </div>
         </div>
 
-        <!-- Menu Screen -->
-        <div id="menu-screen" class="screen">
-            <div class="card">
-                <div class="home-header">
-                    <h2>Campus Menu 🍽️</h2>
-                    <p>Available Items</p>
+        <!-- Cart Screen -->
+        <div id="cart-screen" class="screen">
+            <div class="container">
+                <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
+                <h2 class="section-title">Your Cart</h2>
+                <div id="cart-items-list"></div>
+                <div class="cart-summary" id="cart-summary" style="display:none;">
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <span id="subtotal">₹0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Taxes & Fees</span>
+                        <span id="taxes">₹0</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="total">₹0</span>
+                    </div>
+                    <button class="checkout-btn" onclick="placeOrder()">Place Order</button>
                 </div>
+            </div>
+        </div>
 
-                <div id="menu-list"></div>
+        <!-- Order Confirmation Screen -->
+        <div id="order-confirm-screen" class="screen">
+            <div class="container">
+                <div class="order-success">
+                    <div class="success-icon">✓</div>
+                    <h2>Order Placed Successfully!</h2>
+                    <div class="order-number" id="order-number">#12345</div>
+                    <p>Your order will be ready in 15-20 minutes</p>
+                    
+                    <div class="order-details" id="order-details"></div>
+                    
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="navigateTo('home-screen')">
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+        </div>
 
-                <button class="btn btn-secondary" onclick="showScreen('home-screen')">
-                    Back
-                </button>
+        <!-- Profile Screen -->
+        <div id="profile-screen" class="screen">
+            <div class="container">
+                <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
+                <h2 class="section-title">Profile</h2>
+                <div class="auth-card" style="margin: 0;">
+                    <form onsubmit="updateProfile(event)">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="profile-name" placeholder="Enter your name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>SRN</label>
+                            <input type="text" id="profile-srn" disabled>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order History Screen -->
+        <div id="order-history-screen" class="screen">
+            <div class="container">
+                <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
+                <h2 class="section-title">Order History</h2>
+                <div id="order-history-list"></div>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settings-screen" class="screen">
+            <div class="container">
+                <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
+                <h2 class="section-title">Settings</h2>
+                <div class="auth-card" style="margin: 0;">
+                    <p style="text-align: center; color: #666;">Settings coming soon...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -702,9 +956,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // ========================
-        // FIREBASE CONFIGURATION
-        // ========================
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBlJSNdxM2xzaHMdbPiFqhHKfhkt5Jgqv0",
             authDomain: "campus-eats-007.firebaseapp.com",
@@ -714,326 +966,453 @@
             appId: "1:201751423832:web:6d4592dbc1053789fb132d"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ========================
-        // HELPER FUNCTIONS
-        // ========================
+        // Global State
+        let currentUser = null;
+        let cart = [];
+        let currentRestaurant = null;
+        let allRestaurants = [];
+        let currentFilter = 'all';
 
-        // Hash PIN using SHA-256
+        // Helper Functions
         function hashPIN(pin) {
             return CryptoJS.SHA256(pin).toString();
         }
 
-        // Validate SRN format (Letter + 2 digits + 2 letters + 3 digits)
-        function isValidSRN(srn) {
-            const pattern = /^[A-Z][0-9]{2}[A-Z]{2}[0-9]{3}$/;
-            return pattern.test(srn);
-        }
-
-        // Show notification toast
-        function showNotification(message, type = 'error', title = null) {
+        function showNotification(message) {
             const notification = document.getElementById('notification');
-            const icon = notification.querySelector('.notification-icon');
-            const titleEl = notification.querySelector('.notification-title');
-            const messageEl = notification.querySelector('.notification-message');
-
-            // Set icon and style based on type
-            if (type === 'success') {
-                icon.textContent = '✅';
-                notification.className = 'notification success';
-                titleEl.textContent = title || 'Success';
-            } else {
-                icon.textContent = '❌';
-                notification.className = 'notification error';
-                titleEl.textContent = title || 'Error';
-            }
-
-            messageEl.textContent = message;
-
-            // Show notification
-            setTimeout(() => notification.classList.add('show'), 100);
-
-            // Hide after 4 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 4000);
+            document.getElementById('notification-message').textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 3000);
         }
 
-        // Show specific screen
         function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
         }
 
-        // Toggle PIN visibility
-        function togglePinVisibility(inputId) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-            } else {
-                input.type = 'password';
-            }
+        function navigateTo(screenId) {
+            closeSidebar();
+            const mainApp = document.getElementById('main-app');
+            mainApp.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
         }
 
-        // Set button loading state
-        function setButtonLoading(button, loading) {
-            if (loading) {
-                button.classList.add('loading');
-                button.disabled = true;
-            } else {
-                button.classList.remove('loading');
-                button.disabled = false;
-            }
+        function openSidebar() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
         }
 
-        // Add error shake animation to input
-        function shakeInput(inputId) {
-            const input = document.getElementById(inputId);
-            input.classList.add('error');
-            setTimeout(() => input.classList.remove('error'), 400);
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
         }
 
-        // ========================
-        // AUTO UPPERCASE SRN INPUT
-        // ========================
-        document.addEventListener('DOMContentLoaded', function() {
-            const srnInputs = document.querySelectorAll('.srn-input');
-            srnInputs.forEach(input => {
-                input.addEventListener('input', function(e) {
-                    e.target.value = e.target.value.toUpperCase();
-                });
-            });
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = count;
+        }
 
-            // Numeric only for PIN inputs
-            const pinInputs = document.querySelectorAll('.pin-input');
-            pinInputs.forEach(input => {
-                input.addEventListener('input', function(e) {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                });
-            });
-        });
+        // Register
+        async function registerStudent(e) {
+            e.preventDefault();
+            const srn = document.getElementById('register-srn').value.toUpperCase();
+            const pin = document.getElementById('register-pin').value;
+            const confirmPin = document.getElementById('register-pin-confirm').value;
 
-        // ========================
-        // REGISTER STUDENT
-        // ========================
-        async function registerStudent(event) {
-            event.preventDefault();
-            
-            const button = event.target.querySelector('.btn-primary');
-            const srnInput = document.getElementById('register-srn');
-            const pinInput = document.getElementById('register-pin');
-            const confirmPinInput = document.getElementById('register-pin-confirm');
-
-            const srn = srnInput.value.trim().toUpperCase();
-            const pin = pinInput.value.trim();
-            const confirmPin = confirmPinInput.value.trim();
-
-            // Validate SRN format
-            if (!isValidSRN(srn)) {
-                showNotification('Invalid SRN format. Use format like R25EA170');
-                shakeInput('register-srn');
-                return;
-            }
-
-            // Validate PIN length
-            if (pin.length !== 4) {
-                showNotification('PIN must be exactly 4 digits');
-                shakeInput('register-pin');
-                return;
-            }
-
-            // Validate PIN match
             if (pin !== confirmPin) {
-                showNotification('PINs do not match');
-                shakeInput('register-pin-confirm');
+                showNotification('PINs do not match!');
                 return;
             }
-
-            setButtonLoading(button, true);
 
             try {
-                // Check if SRN already exists
                 const doc = await db.collection('students').doc(srn).get();
-
                 if (doc.exists) {
-                    showNotification('This SRN is already registered. Please login instead.');
-                    shakeInput('register-srn');
-                    setButtonLoading(button, false);
+                    showNotification('SRN already registered!');
                     return;
                 }
 
-                // Create new student account
                 await db.collection('students').doc(srn).set({
                     pinHash: hashPIN(pin),
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Save session
                 localStorage.setItem('srn', srn);
-
-                showNotification('Account created successfully!', 'success', 'Welcome!');
-                
-                // Redirect to home after short delay
-                setTimeout(() => {
-                    document.getElementById('student-srn').textContent = `SRN: ${srn}`;
-                    showScreen('home-screen');
-                    event.target.reset();
-                }, 1500);
-
+                currentUser = { srn };
+                showNotification('Registration successful!');
+                loadApp();
             } catch (error) {
-                console.error('Registration error:', error);
-                showNotification('Registration failed. Please try again.');
-            } finally {
-                setButtonLoading(button, false);
+                showNotification('Registration failed!');
+                console.error(error);
             }
         }
 
-        // ========================
-        // LOGIN STUDENT
-        // ========================
-        async function loginStudent(event) {
-            event.preventDefault();
-            
-            const button = event.target.querySelector('.btn-primary');
-            const srnInput = document.getElementById('login-srn');
-            const pinInput = document.getElementById('login-pin');
-
-            const srn = srnInput.value.trim().toUpperCase();
-            const pin = pinInput.value.trim();
-
-            // Validate SRN format
-            if (!isValidSRN(srn)) {
-                showNotification('Invalid SRN format');
-                shakeInput('login-srn');
-                return;
-            }
-
-            // Validate PIN length
-            if (pin.length !== 4) {
-                showNotification('PIN must be 4 digits');
-                shakeInput('login-pin');
-                return;
-            }
-
-            setButtonLoading(button, true);
+        // Login
+        async function loginStudent(e) {
+            e.preventDefault();
+            const srn = document.getElementById('login-srn').value.toUpperCase();
+            const pin = document.getElementById('login-pin').value;
 
             try {
-                // Get student document
                 const doc = await db.collection('students').doc(srn).get();
-
                 if (!doc.exists) {
-                    showNotification('SRN not found. Please register first.');
-                    shakeInput('login-srn');
-                    setButtonLoading(button, false);
+                    showNotification('SRN not found!');
                     return;
                 }
 
-                // Verify PIN
-                const storedHash = doc.data().pinHash;
-                const enteredHash = hashPIN(pin);
-
-                if (storedHash !== enteredHash) {
-                    showNotification('Incorrect PIN. Please try again.');
-                    shakeInput('login-pin');
-                    setButtonLoading(button, false);
+                if (doc.data().pinHash !== hashPIN(pin)) {
+                    showNotification('Incorrect PIN!');
                     return;
                 }
 
-                // Login successful
                 localStorage.setItem('srn', srn);
-
-                showNotification('Login successful!', 'success', 'Welcome Back!');
-                
-                // Redirect to home after short delay
-                setTimeout(() => {
-                    document.getElementById('student-srn').textContent = `SRN: ${srn}`;
-                    showScreen('home-screen');
-                    event.target.reset();
-                }, 1500);
-
+                currentUser = { srn, ...doc.data() };
+                showNotification('Login successful!');
+                loadApp();
             } catch (error) {
-                console.error('Login error:', error);
-                showNotification('Login failed. Please try again.');
-            } finally {
-                setButtonLoading(button, false);
+                showNotification('Login failed!');
+                console.error(error);
             }
         }
 
-        // ========================
-        // LOAD MENU ITEMS
-        // ========================
-        async function loadMenu() {
-            showScreen('menu-screen');
+        // Load App
+        async function loadApp() {
+            showScreen('main-app');
+            
+            // Update sidebar
+            document.getElementById('sidebar-srn').textContent = `SRN: ${currentUser.srn}`;
+            document.getElementById('sidebar-name').textContent = currentUser.name || 'Guest User';
+            
+            // Load profile data
+            document.getElementById('profile-srn').value = currentUser.srn;
+            document.getElementById('profile-name').value = currentUser.name || '';
+            
+            loadRestaurants();
+            loadOrderHistory();
+        }
 
-            const menuList = document.getElementById('menu-list');
-            menuList.innerHTML = '<div class="loading-text">Loading menu...</div>';
-
+        // Load Restaurants
+        async function loadRestaurants() {
             try {
-                const snapshot = await db.collection('menu_items').get();
-
-                if (snapshot.empty) {
-                    menuList.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state-icon">🍽️</div>
-                            <div class="empty-state-text">No menu items available at the moment.</div>
-                        </div>
-                    `;
-                    return;
-                }
-
-                menuList.innerHTML = "";
-
+                const snapshot = await db.collection('vendors').get();
+                allRestaurants = [];
+                
                 snapshot.forEach(doc => {
-                    const item = doc.data();
-
-                    const div = document.createElement('div');
-                    div.className = 'menu-card';
-
-                    div.innerHTML = `
-                        <div class="menu-title">${item.name || 'Unnamed Item'}</div>
-                        <div class="menu-price">₹${item.price || '0'}</div>
-                        ${item.description ? `<div class="menu-description">${item.description}</div>` : ''}
-                    `;
-
-                    menuList.appendChild(div);
+                    allRestaurants.push({ id: doc.id, ...doc.data() });
                 });
 
+                displayRestaurants();
             } catch (error) {
-                console.error("Error loading menu:", error);
-                menuList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">⚠️</div>
-                        <div class="empty-state-text">Failed to load menu. Please try again.</div>
+                console.error('Error loading restaurants:', error);
+            }
+        }
+
+        // Display Restaurants
+        function displayRestaurants() {
+            const container = document.getElementById('restaurants-list');
+            
+            let filtered = allRestaurants;
+            if (currentFilter === 'veg') {
+                filtered = allRestaurants.filter(r => r.type === 'veg');
+            } else if (currentFilter === 'non-veg') {
+                filtered = allRestaurants.filter(r => r.type === 'non-veg' || r.type === 'both');
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🍽️</div><p>No restaurants available</p></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(restaurant => `
+                <div class="restaurant-card" onclick="openRestaurant('${restaurant.id}')">
+                    <div class="restaurant-image">${restaurant.icon || '🍽️'}</div>
+                    <div class="restaurant-info">
+                        <div class="restaurant-header">
+                            <div class="restaurant-name">${restaurant.name}</div>
+                            <div class="restaurant-badge">
+                                ⭐ ${restaurant.rating || '4.5'}
+                            </div>
+                        </div>
+                        <div class="restaurant-type">${restaurant.cuisine || 'Multi-Cuisine'}</div>
+                        <div class="restaurant-meta">
+                            <span>⏱️ ${restaurant.deliveryTime || '20-30 min'}</span>
+                            <span>💰 ₹${restaurant.minOrder || '100'} min</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter Restaurants
+        function filterRestaurants(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            displayRestaurants();
+        }
+
+        // Open Restaurant
+        async function openRestaurant(vendorId) {
+            currentRestaurant = allRestaurants.find(r => r.id === vendorId);
+            
+            try {
+                const snapshot = await db.collection('menu_items')
+                    .where('vendorId', '==', vendorId)
+                    .get();
+                
+                const items = [];
+                snapshot.forEach(doc => {
+                    items.push({ id: doc.id, ...doc.data() });
+                });
+
+                document.getElementById('restaurant-menu-title').textContent = currentRestaurant.name;
+                displayMenuItems(items);
+                navigateTo('restaurant-menu-screen');
+            } catch (error) {
+                console.error('Error loading menu:', error);
+            }
+        }
+
+        // Display Menu Items
+        function displayMenuItems(items) {
+            const container = document.getElementById('menu-items-list');
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🍽️</div><p>No menu items available</p></div>';
+                return;
+            }
+
+            container.innerHTML = items.map(item => {
+                const cartItem = cart.find(c => c.id === item.id);
+                const quantity = cartItem ? cartItem.quantity : 0;
+                
+                return `
+                    <div class="menu-item-card">
+                        <div class="menu-item-info">
+                            <div class="menu-item-header">
+                                <div class="veg-indicator ${item.type === 'non-veg' ? 'non-veg' : ''}">
+                                    <div class="veg-dot ${item.type === 'non-veg' ? 'non-veg' : ''}"></div>
+                                </div>
+                                <div class="menu-item-name">${item.name}</div>
+                            </div>
+                            <div class="menu-item-desc">${item.description || ''}</div>
+                            <div class="menu-item-price">₹${item.price}</div>
+                        </div>
+                        <div class="menu-item-actions">
+                            ${quantity === 0 ? `
+                                <button class="add-btn" onclick='addToCart(${JSON.stringify(item)})'>Add</button>
+                            ` : `
+                                <div class="quantity-controls">
+                                    <button class="qty-btn" onclick='decreaseQuantity("${item.id}")'>-</button>
+                                    <div class="qty-display">${quantity}</div>
+                                    <button class="qty-btn" onclick='increaseQuantity("${item.id}")'>+</button>
+                                </div>
+                            `}
+                        </div>
                     </div>
                 `;
+            }).join('');
+        }
+
+        // Cart Functions
+        function addToCart(item) {
+            cart.push({ ...item, quantity: 1 });
+            updateCartCount();
+            openRestaurant(currentRestaurant.id);
+        }
+
+        function increaseQuantity(itemId) {
+            const item = cart.find(c => c.id === itemId);
+            if (item) item.quantity++;
+            updateCartCount();
+            openRestaurant(currentRestaurant.id);
+        }
+
+        function decreaseQuantity(itemId) {
+            const item = cart.find(c => c.id === itemId);
+            if (item) {
+                item.quantity--;
+                if (item.quantity === 0) {
+                    cart = cart.filter(c => c.id !== itemId);
+                }
+            }
+            updateCartCount();
+            openRestaurant(currentRestaurant.id);
+        }
+
+        function displayCart() {
+            const container = document.getElementById('cart-items-list');
+            const summary = document.getElementById('cart-summary');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🛒</div><p>Your cart is empty</p></div>';
+                summary.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h4>${item.name}</h4>
+                        <p>₹${item.price} × ${item.quantity}</p>
+                    </div>
+                    <div class="cart-item-right">
+                        <div class="quantity-controls">
+                            <button class="qty-btn" onclick='decreaseQuantity("${item.id}"); displayCart();'>-</button>
+                            <div class="qty-display">${item.quantity}</div>
+                            <button class="qty-btn" onclick='increaseQuantity("${item.id}"); displayCart();'>+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const taxes = Math.round(subtotal * 0.05);
+            const total = subtotal + taxes;
+
+            document.getElementById('subtotal').textContent = `₹${subtotal}`;
+            document.getElementById('taxes').textContent = `₹${taxes}`;
+            document.getElementById('total').textContent = `₹${total}`;
+            summary.style.display = 'block';
+        }
+
+        // Place Order
+        async function placeOrder() {
+            if (cart.length === 0) return;
+
+            const orderNumber = 'CE' + Date.now().toString().slice(-8);
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const total = subtotal + Math.round(subtotal * 0.05);
+
+            try {
+                await db.collection('orders').add({
+                    orderNumber,
+                    srn: currentUser.srn,
+                    items: cart,
+                    total,
+                    status: 'pending',
+                    vendorId: currentRestaurant.id,
+                    vendorName: currentRestaurant.name,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                document.getElementById('order-number').textContent = `#${orderNumber}`;
+                document.getElementById('order-details').innerHTML = `
+                    <div class="summary-row">
+                        <span>Restaurant</span>
+                        <span>${currentRestaurant.name}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Items</span>
+                        <span>${cart.length}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total Paid</span>
+                        <span>₹${total}</span>
+                    </div>
+                `;
+
+                cart = [];
+                updateCartCount();
+                navigateTo('order-confirm-screen');
+                loadOrderHistory();
+            } catch (error) {
+                showNotification('Order placement failed!');
+                console.error(error);
             }
         }
 
-        // ========================
-        // LOGOUT
-        // ========================
+        // Load Order History
+        async function loadOrderHistory() {
+            try {
+                const snapshot = await db.collection('orders')
+                    .where('srn', '==', currentUser.srn)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                const container = document.getElementById('order-history-list');
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><p>No orders yet</p></div>';
+                    return;
+                }
+
+                const orders = [];
+                snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
+
+                container.innerHTML = orders.map(order => `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <h4>#${order.orderNumber}</h4>
+                            <p>${order.vendorName} • ${order.items.length} items</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 700; color: #ff6b35;">₹${order.total}</div>
+                            <div style="font-size: 13px; color: #666;">${order.status}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading orders:', error);
+            }
+        }
+
+        // Update Profile
+        async function updateProfile(e) {
+            e.preventDefault();
+            const name = document.getElementById('profile-name').value;
+
+            try {
+                await db.collection('students').doc(currentUser.srn).update({ name });
+                currentUser.name = name;
+                document.getElementById('sidebar-name').textContent = name;
+                showNotification('Profile updated!');
+            } catch (error) {
+                showNotification('Update failed!');
+                console.error(error);
+            }
+        }
+
+        // Logout
         function logout() {
             localStorage.removeItem('srn');
-            showNotification('Logged out successfully', 'success', 'Goodbye!');
-            setTimeout(() => {
-                showScreen('welcome-screen');
-            }, 1000);
+            currentUser = null;
+            cart = [];
+            showScreen('welcome-screen');
+            closeSidebar();
         }
 
-        // ========================
-        // CHECK SESSION ON LOAD
-        // ========================
-        window.addEventListener('DOMContentLoaded', function() {
+        // Auto-login on page load
+        window.addEventListener('DOMContentLoaded', async () => {
             const srn = localStorage.getItem('srn');
             if (srn) {
-                document.getElementById('student-srn').textContent = `SRN: ${srn}`;
-                showScreen('home-screen');
+                try {
+                    const doc = await db.collection('students').doc(srn).get();
+                    if (doc.exists) {
+                        currentUser = { srn, ...doc.data() };
+                        loadApp();
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             }
+
+            // Auto-uppercase SRN inputs
+            document.querySelectorAll('.srn-input').forEach(input => {
+                input.addEventListener('input', e => {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+            });
+
+            // Update cart display when navigating to cart
+            const cartScreenObserver = new MutationObserver(() => {
+                if (document.getElementById('cart-screen').classList.contains('active')) {
+                    displayCart();
+                }
+            });
+            cartScreenObserver.observe(document.getElementById('cart-screen'), { attributes: true });
         });
     </script>
 </body>
