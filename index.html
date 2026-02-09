@@ -6,6 +6,7 @@
     <title>Campus Eats - Food Delivery</title>
     
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     
     <style>
         * {
@@ -735,35 +736,6 @@
         .srn-input {
             text-transform: uppercase;
         }
-
-        .order-status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-preparing {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-ready {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-completed {
-            background: #e5e7eb;
-            color: #374151;
-        }
     </style>
 </head>
 <body>
@@ -911,7 +883,7 @@
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
                 <h2 class="section-title" id="restaurant-menu-title">Menu</h2>
                 
-                <!-- Search Bar for Menu Items -->
+                <!-- Search Bar for Menu Items (FIXED) -->
                 <div class="search-container">
                     <div class="search-box">
                         <span class="search-icon">🔍</span>
@@ -961,7 +933,7 @@
                         <span>Total</span>
                         <span id="total">₹0</span>
                     </div>
-                    <button class="checkout-btn" onclick="placeOrder()">Place Order (Test Mode)</button>
+                    <button class="checkout-btn" onclick="initiatePayment()">Pay with Razorpay</button>
                 </div>
             </div>
         </div>
@@ -971,9 +943,9 @@
             <div class="container">
                 <div class="order-success">
                     <div class="success-icon">✓</div>
-                    <h2>Order Placed Successfully!</h2>
+                    <h2>Payment Successful!</h2>
                     <div class="order-number" id="order-number">#12345</div>
-                    <p>Your order has been sent to the vendor</p>
+                    <p>Your order has been placed successfully</p>
                     <p style="font-size: 14px; color: #666; margin-top: 8px;">Pickup in 15-20 minutes</p>
                     
                     <div class="order-details" id="order-details"></div>
@@ -1031,6 +1003,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
+        const RAZORPAY_KEY_ID = 'YOUR_RAZORPAY_KEY_ID';
+
         const firebaseConfig = {
             apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
             authDomain: "campus-eats-007.firebaseapp.com",
@@ -1047,6 +1021,7 @@
         let cart = [];
         let currentRestaurant = null;
         let allRestaurants = [];
+        let allMenuItems = [];
         let currentMenuFilter = 'all';
         let currentMenuItems = [];
         let currentMenuSearchTerm = '';
@@ -1156,8 +1131,10 @@
         }
 
         async function loadApp() {
+            // FIXED: Properly show main app and home screen
             showScreen('main-app');
             
+            // Wait a bit for DOM to update
             setTimeout(() => {
                 const mainApp = document.getElementById('main-app');
                 mainApp.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1175,16 +1152,11 @@
 
         async function loadRestaurants() {
             try {
-                const snapshot = await db.collection('vendors').where('isActive', '==', true).get();
+                const snapshot = await db.collection('vendors').get();
                 allRestaurants = [];
                 
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    allRestaurants.push({ 
-                        id: doc.id, 
-                        name: data.storeName,
-                        ...data 
-                    });
+                    allRestaurants.push({ id: doc.id, ...doc.data() });
                 });
 
                 displayRestaurants();
@@ -1212,50 +1184,46 @@
             }
 
             container.innerHTML = filtered.map(restaurant => `
-                <div class="restaurant-card" onclick="openRestaurant('${restaurant.id}', '${restaurant.name}')">
-                    <div class="restaurant-image">🍽️</div>
+                <div class="restaurant-card" onclick="openRestaurant('${restaurant.id}')">
+                    <div class="restaurant-image">${restaurant.icon || '🍽️'}</div>
                     <div class="restaurant-info">
                         <div class="restaurant-header">
                             <div class="restaurant-name">${restaurant.name}</div>
                             <div class="restaurant-badge">
-                                ⭐ 4.5
+                                ⭐ ${restaurant.rating || '4.5'}
                             </div>
                         </div>
                         <div class="restaurant-type">Multi-Cuisine</div>
                         <div class="restaurant-meta">
-                            <span>⏱️ 15-20 min</span>
-                            <span>📍 Campus</span>
+                            <span>⏱️ ${restaurant.prepTime || '20'} min</span>
+                            <span>📍 ${restaurant.location || 'Campus'}</span>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
-        async function openRestaurant(vendorId, storeName) {
-            currentRestaurant = { id: vendorId, name: storeName };
+        async function openRestaurant(vendorId) {
+            currentRestaurant = allRestaurants.find(r => r.id === vendorId);
             currentMenuFilter = 'all';
             currentMenuSearchTerm = '';
             
+            // Clear search box
             document.getElementById('menu-search').value = '';
             
             try {
-                const snapshot = await db.collection('menu')
-                    .doc(storeName)
-                    .collection('items')
+                const snapshot = await db.collection('menu_items')
+                    .where('vendorId', '==', vendorId)
                     .get();
                 
                 currentMenuItems = [];
                 snapshot.forEach(doc => {
-                    currentMenuItems.push({ 
-                        id: doc.id, 
-                        vendorId: vendorId,
-                        storeName: storeName,
-                        ...doc.data() 
-                    });
+                    currentMenuItems.push({ id: doc.id, ...doc.data() });
                 });
 
-                document.getElementById('restaurant-menu-title').textContent = storeName;
+                document.getElementById('restaurant-menu-title').textContent = currentRestaurant.name;
                 
+                // Reset filter buttons
                 document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
@@ -1269,6 +1237,7 @@
             }
         }
 
+        // FIXED: Veg/Non-Veg Filter - now checks vegNonVeg field correctly
         function filterMenuItems(filter, button) {
             currentMenuFilter = filter;
             document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -1277,6 +1246,7 @@
             applyFiltersAndDisplay();
         }
 
+        // FIXED: Menu Search - searches food items, not restaurants
         function filterMenuBySearch() {
             currentMenuSearchTerm = document.getElementById('menu-search').value.toLowerCase();
             applyFiltersAndDisplay();
@@ -1285,6 +1255,7 @@
         function applyFiltersAndDisplay() {
             let filtered = currentMenuItems;
             
+            // Apply veg/non-veg filter
             if (currentMenuFilter === 'VEG') {
                 filtered = filtered.filter(item => 
                     item.vegNonVeg && item.vegNonVeg.toUpperCase() === 'VEG'
@@ -1295,6 +1266,7 @@
                 );
             }
             
+            // Apply search filter
             if (currentMenuSearchTerm) {
                 filtered = filtered.filter(item =>
                     item.name.toLowerCase().includes(currentMenuSearchTerm)
@@ -1424,28 +1396,56 @@
             summary.style.display = 'block';
         }
 
-        // UPDATED: Direct order placement (No Razorpay)
-        async function placeOrder() {
+        function initiatePayment() {
             if (cart.length === 0) return;
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const total = subtotal + Math.round(subtotal * 0.05);
-            
+            const amountInPaise = total * 100;
+
+            const options = {
+                key: RAZORPAY_KEY_ID,
+                amount: amountInPaise,
+                currency: 'INR',
+                name: 'Campus Eats',
+                description: `Order from ${currentRestaurant.name}`,
+                prefill: {
+                    name: currentUser.name || 'Student',
+                    email: `${currentUser.srn}@student.edu`,
+                },
+                theme: {
+                    color: '#ff6b35'
+                },
+                handler: function(response) {
+                    handlePaymentSuccess(response, total);
+                },
+                modal: {
+                    ondismiss: function() {
+                        showNotification('Payment cancelled');
+                    }
+                }
+            };
+
+            const razorpay = new Razorpay(options);
+            razorpay.open();
+        }
+
+        async function handlePaymentSuccess(paymentResponse, total) {
             const orderNumber = 'CE' + Date.now().toString().slice(-8);
 
             try {
-                // CRITICAL: Include storeName in the order
                 await db.collection('orders').add({
                     orderNumber,
                     srn: currentUser.srn,
                     items: cart,
                     total,
                     status: 'pending',
-                    storeName: currentRestaurant.name,  // IMPORTANT: This links order to vendor
+                    paymentId: paymentResponse.razorpay_payment_id,
+                    vendorId: currentRestaurant.id,
+                    vendorName: currentRestaurant.name,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Show success screen
                 document.getElementById('order-number').textContent = `#${orderNumber}`;
                 document.getElementById('order-details').innerHTML = `
                     <div class="summary-row">
@@ -1457,11 +1457,11 @@
                         <span>${cart.length}</span>
                     </div>
                     <div class="summary-row">
-                        <span>Status</span>
-                        <span class="order-status-badge status-pending">Pending</span>
+                        <span>Payment ID</span>
+                        <span style="font-size: 12px; color: #666;">${paymentResponse.razorpay_payment_id}</span>
                     </div>
                     <div class="summary-row total">
-                        <span>Amount</span>
+                        <span>Amount Paid</span>
                         <span>₹${total}</span>
                     </div>
                 `;
@@ -1470,10 +1470,10 @@
                 updateCartCount();
                 navigateTo('order-confirm-screen');
                 
-                showNotification('Order placed successfully!');
+                showNotification('Payment successful!');
             } catch (error) {
                 console.error('Error saving order:', error);
-                showNotification('Order placement failed!');
+                showNotification('Order save failed!');
             }
         }
 
@@ -1499,11 +1499,11 @@
                     <div class="cart-item">
                         <div class="cart-item-info">
                             <h4>#${order.orderNumber}</h4>
-                            <p>${order.storeName} • ${order.items.length} items</p>
+                            <p>${order.vendorName} • ${order.items.length} items</p>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-weight: 700; color: #ff6b35;">₹${order.total}</div>
-                            <div class="order-status-badge status-${order.status}">${order.status}</div>
+                            <div style="font-size: 13px; color: #10b981;">${order.status}</div>
                         </div>
                     </div>
                 `).join('');
