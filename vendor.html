@@ -296,6 +296,7 @@
         .filter-tabs {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .filter-tab {
@@ -570,11 +571,11 @@
             <form id="login-form">
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" required placeholder="vendor@example.com">
+                    <input type="email" id="email" required placeholder="vendor@example.com" autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="Enter your password">
+                    <input type="password" id="password" required placeholder="Enter your password" autocomplete="current-password">
                 </div>
                 <button type="submit" class="login-btn" id="login-btn">Sign In</button>
             </form>
@@ -590,21 +591,23 @@
                     <label for="store-select">Select Your Store *</label>
                     <select id="store-select" required>
                         <option value="">-- Select your store --</option>
-                        <!-- Options loaded from Firebase -->
+                        <option value="GRUB FOODS">GRUB FOODS</option>
+                        <option value="ROLL ME">ROLL ME</option>
+                        <option value="SIDDI VINAYAKA GARDEN">SIDDI VINAYAKA GARDEN</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label for="register-email">Email Address *</label>
-                    <input type="email" id="register-email" required placeholder="vendor@example.com">
+                    <input type="email" id="register-email" required placeholder="vendor@example.com" autocomplete="email">
                 </div>
                 <div class="form-group">
                     <label for="register-password">Password *</label>
-                    <input type="password" id="register-password" required placeholder="Minimum 6 characters">
+                    <input type="password" id="register-password" required placeholder="Minimum 6 characters" autocomplete="new-password">
                 </div>
                 <div class="form-group">
                     <label for="contact-number">Contact Number (Optional)</label>
-                    <input type="tel" id="contact-number" placeholder="9876543210">
+                    <input type="tel" id="contact-number" placeholder="9876543210" autocomplete="tel">
                 </div>
                 <button type="submit" class="login-btn" id="register-btn">Create Account</button>
             </form>
@@ -702,36 +705,8 @@
         let ordersListener = null;
         let isLoginForm = true;
         let currentVendorStore = null;
-        let availableStores = [];
 
-        // Load available stores from menu collection
-        async function loadStores() {
-            try {
-                const menuSnapshot = await db.collection('menu').get();
-                availableStores = [];
-                const storeSelect = document.getElementById('store-select');
-                
-                // Clear existing options except first
-                storeSelect.innerHTML = '<option value="">-- Select your store --</option>';
-                
-                menuSnapshot.forEach(doc => {
-                    const storeName = doc.id;
-                    availableStores.push(storeName);
-                    const option = document.createElement('option');
-                    option.value = storeName;
-                    option.textContent = storeName;
-                    storeSelect.appendChild(option);
-                });
-                
-                console.log('Loaded stores:', availableStores);
-            } catch (error) {
-                console.error('Error loading stores:', error);
-                showError('Failed to load store list. Please refresh the page.');
-            }
-        }
-
-        // Initialize store list on page load
-        loadStores();
+        const VALID_STORES = ['GRUB FOODS', 'ROLL ME', 'SIDDI VINAYAKA GARDEN'];
 
         // Toggle between login and register forms
         function toggleForm(e) {
@@ -756,8 +731,6 @@
                 subtitle.textContent = 'Create a new vendor account';
                 toggleText.textContent = 'Already have an account? ';
                 toggleLink.textContent = 'Sign In';
-                // Reload stores when showing registration form
-                loadStores();
             }
             
             hideError();
@@ -822,6 +795,11 @@
                 }
                 
                 const vendorData = vendorDoc.data();
+                
+                if (!VALID_STORES.includes(vendorData.storeName)) {
+                    throw new Error('Invalid store. Please contact admin.');
+                }
+                
                 currentVendorStore = vendorData.storeName;
                 
                 showNotification(`Welcome back to ${currentVendorStore}!`);
@@ -867,7 +845,7 @@
                 return;
             }
             
-            if (!availableStores.includes(storeName)) {
+            if (!VALID_STORES.includes(storeName)) {
                 showError('Invalid store selection. Please choose from the list.');
                 return;
             }
@@ -1005,10 +983,35 @@
                     
                     // If the error is because storeName field doesn't exist in orders
                     if (error.code === 'failed-precondition') {
-                        showNotification('Database index is being created. Please wait a moment and refresh.', 'error');
+                        showNotification('Creating database index. Please wait 2 minutes and refresh the page.', 'error');
+                        
+                        // Try to load without the index for now
+                        loadOrdersWithoutIndex();
                     } else {
-                        showNotification('Failed to load orders', 'error');
+                        showNotification('Failed to load orders: ' + error.message, 'error');
                     }
+                });
+        }
+
+        // Fallback: Load orders without index (temporary solution)
+        function loadOrdersWithoutIndex() {
+            console.log('Loading orders without index...');
+            
+            db.collection('orders')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    const allOrders = [];
+                    snapshot.forEach(doc => {
+                        const orderData = doc.data();
+                        // Client-side filtering
+                        if (orderData.storeName === currentVendorStore) {
+                            allOrders.push({ id: doc.id, ...orderData });
+                        }
+                    });
+                    
+                    console.log(`Loaded ${allOrders.length} orders (client-filtered) for ${currentVendorStore}`);
+                    updateStats(allOrders);
+                    renderOrders(allOrders);
                 });
         }
 
@@ -1026,7 +1029,7 @@
                     const orderDate = o.createdAt.toDate().setHours(0, 0, 0, 0);
                     return orderDate === today;
                 })
-                .reduce((sum, o) => sum + o.total, 0);
+                .reduce((sum, o) => sum + (o.total || 0), 0);
 
             document.getElementById('pending-count').textContent = pending;
             document.getElementById('preparing-count').textContent = preparing;
@@ -1044,7 +1047,7 @@
             });
             event.target.classList.add('active');
             
-            // Reload orders will automatically apply filter
+            // Re-render with current orders
             loadOrders();
         }
 
@@ -1084,11 +1087,11 @@
                         </div>
                         
                         <div class="student-info">
-                            Student SRN: <span class="student-srn">${order.srn}</span>
+                            Student SRN: <span class="student-srn">${order.srn || 'N/A'}</span>
                         </div>
                         
                         <div class="order-items">
-                            ${order.items.map(item => `
+                            ${(order.items || []).map(item => `
                                 <div class="order-item">
                                     <span class="item-name">${item.name}</span>
                                     <span class="item-qty">x${item.quantity} - ₹${item.price * item.quantity}</span>
@@ -1097,7 +1100,7 @@
                         </div>
                         
                         <div class="order-footer">
-                            <div class="order-total">Total: ₹${order.total}</div>
+                            <div class="order-total">Total: ₹${order.total || 0}</div>
                             <div class="order-actions">
                                 ${getActionButtons(order.id, order.status)}
                             </div>
@@ -1174,7 +1177,13 @@
                 try {
                     const vendorDoc = await db.collection('vendors').doc(user.uid).get();
                     if (vendorDoc.exists) {
-                        showDashboard(user, vendorDoc.data());
+                        const vendorData = vendorDoc.data();
+                        if (VALID_STORES.includes(vendorData.storeName)) {
+                            showDashboard(user, vendorData);
+                        } else {
+                            await auth.signOut();
+                            showError('Invalid store. Please contact admin.');
+                        }
                     } else {
                         // User exists in auth but not in vendors collection
                         await auth.signOut();
@@ -1203,6 +1212,9 @@
                             showNotification('🔔 New order received!');
                         }
                         lastOrderCount = currentCount;
+                    }, (error) => {
+                        // Silent fail for notification listener
+                        console.log('Notification listener error (expected during setup):', error.code);
                     });
             }
         });
