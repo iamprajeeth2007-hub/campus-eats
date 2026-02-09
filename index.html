@@ -8,771 +8,116 @@
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-            min-height: 100vh;
-        }
-
-        .app-header {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-            color: white;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .menu-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: background 0.3s;
-        }
-
-        .menu-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .app-title {
-            font-size: 22px;
-            font-weight: 700;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .cart-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 20px;
-            position: relative;
-            transition: all 0.3s;
-        }
-
-        .cart-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
-        }
-
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc2626;
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            border: 2px solid white;
-        }
-
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -300px;
-            width: 300px;
-            height: 100vh;
-            background: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            transition: left 0.3s ease;
-            z-index: 1000;
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        .sidebar-header {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-            color: white;
-            padding: 24px 20px;
-        }
-
-        .sidebar-profile {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .profile-icon {
-            width: 56px;
-            height: 56px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-        }
-
-        .profile-info h3 {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .profile-info p {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .sidebar-menu {
-            padding: 16px 0;
-        }
-
-        .sidebar-item {
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-size: 16px;
-            color: #333;
-        }
-
-        .sidebar-item:hover {
-            background: #f5f5f5;
-        }
-
-        .sidebar-item-icon {
-            font-size: 24px;
-            width: 32px;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            z-index: 999;
-        }
-
-        .overlay.active {
-            display: block;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        .auth-card {
-            background: white;
-            border-radius: 24px;
-            padding: 40px 32px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-width: 420px;
-            margin: 60px auto;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .logo-icon {
-            width: 72px;
-            height: 72px;
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 36px;
-        }
-
-        .logo h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-        }
-
-        .logo p {
-            font-size: 15px;
-            color: #666;
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        input {
-            width: 100%;
-            padding: 16px;
-            font-size: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            transition: all 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5);
-        }
-
-        .btn-secondary {
-            background: #f5f5f5;
-            color: #666;
-            margin-top: 12px;
-        }
-
-        .search-container {
-            margin-bottom: 24px;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 20px;
-            color: #999;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 16px 16px 16px 50px;
-            font-size: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            transition: all 0.3s;
-        }
-
-        .search-input:focus {
-            border-color: #ff6b35;
-            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
-            outline: none;
-        }
-
-        .filter-container {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding: 0 4px;
-        }
-
-        .filter-btn {
-            flex: 1;
-            padding: 12px 20px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .filter-btn.active {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-            color: white;
-            border-color: #ff6b35;
-        }
-
-        .filter-btn:hover {
-            border-color: #ff6b35;
-        }
-
-        .restaurant-card {
-            background: white;
-            border-radius: 16px;
-            margin-bottom: 16px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .restaurant-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-
-        .restaurant-image {
-            width: 100%;
-            height: 180px;
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 64px;
-        }
-
-        .restaurant-info {
-            padding: 16px;
-        }
-
-        .restaurant-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 8px;
-        }
-
-        .restaurant-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a1a1a;
-        }
-
-        .restaurant-badge {
-            background: #10b981;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .restaurant-type {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 12px;
-        }
-
-        .restaurant-meta {
-            display: flex;
-            gap: 16px;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .category-section {
-            margin-bottom: 32px;
-        }
-
-        .category-header {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a1a1a;
-            padding: 12px 0;
-            margin-bottom: 16px;
-            border-bottom: 3px solid #ff6b35;
-        }
-
-        .menu-item-card {
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            display: flex;
-            gap: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-
-        .menu-item-info {
-            flex: 1;
-        }
-
-        .menu-item-header {
-            display: flex;
-            align-items: start;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-
-        .veg-indicator {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #10b981;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-
-        .veg-indicator.non-veg {
-            border-color: #ef4444;
-        }
-
-        .veg-dot {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-        }
-
-        .veg-dot.non-veg {
-            background: #ef4444;
-        }
-
-        .menu-item-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
-
-        .menu-item-price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #ff6b35;
-        }
-
-        .menu-item-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .add-btn {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
-            color: white;
-            border: none;
-            padding: 8px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .add-btn:hover {
-            transform: scale(1.05);
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #f5f5f5;
-            padding: 4px;
-            border-radius: 8px;
-        }
-
-        .qty-btn {
-            background: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: #ff6b35;
-        }
-
-        .qty-btn:hover {
-            background: #ff6b35;
-            color: white;
-        }
-
-        .qty-display {
-            font-weight: 700;
-            font-size: 16px;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        .cart-item {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .cart-item-info h4 {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .cart-item-info p {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .cart-item-right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .cart-summary {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 24px;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 15px;
-        }
-
-        .summary-row.total {
-            font-size: 20px;
-            font-weight: 700;
-            color: #ff6b35;
-            padding-top: 12px;
-            border-top: 2px solid #f0f0f0;
-            margin-top: 12px;
-        }
-
-        .checkout-btn {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 16px;
-            transition: all 0.3s;
-        }
-
-        .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-
-        .order-success {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .success-icon {
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 48px;
-            animation: scaleIn 0.5s ease;
-        }
-
-        @keyframes scaleIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
-        }
-
-        .order-number {
-            font-size: 32px;
-            font-weight: 700;
-            color: #ff6b35;
-            margin: 16px 0;
-        }
-
-        .order-details {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-top: 24px;
-            text-align: left;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .notification {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            display: none;
-            z-index: 1000;
-            border-left: 4px solid #10b981;
-        }
-
-        .notification.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(400px); }
-            to { transform: translateX(0); }
-        }
-
-        .back-btn {
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-bottom: 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #1a1a1a;
-        }
-
-        .helper-text {
-            font-size: 13px;
-            color: #666;
-            margin-top: 8px;
-        }
-
-        .pin-input {
-            letter-spacing: 8px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .srn-input {
-            text-transform: uppercase;
-        }
-
-        .order-status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-preparing {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-ready {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-completed {
-            background: #e5e7eb;
-            color: #374151;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; min-height: 100vh; }
+        .app-header { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 8px; border-radius: 8px; transition: background 0.3s; }
+        .menu-btn:hover { background: rgba(255,255,255,0.2); }
+        .app-title { font-size: 22px; font-weight: 700; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .cart-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 20px; position: relative; transition: all 0.3s; }
+        .cart-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: #dc2626; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 2px solid white; }
+        .sidebar { position: fixed; top: 0; left: -300px; width: 300px; height: 100vh; background: white; box-shadow: 2px 0 10px rgba(0,0,0,0.1); transition: left 0.3s ease; z-index: 1000; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; padding: 24px 20px; }
+        .sidebar-profile { display: flex; align-items: center; gap: 16px; }
+        .profile-icon { width: 56px; height: 56px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .profile-info h3 { font-size: 18px; margin-bottom: 4px; }
+        .profile-info p { font-size: 13px; opacity: 0.9; }
+        .sidebar-menu { padding: 16px 0; }
+        .sidebar-item { padding: 16px 24px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: background 0.3s; border: none; background: none; width: 100%; text-align: left; font-size: 16px; color: #333; }
+        .sidebar-item:hover { background: #f5f5f5; }
+        .sidebar-item-icon { font-size: 24px; width: 32px; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0,0,0,0.5); display: none; z-index: 999; }
+        .overlay.active { display: block; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .auth-card { background: white; border-radius: 24px; padding: 40px 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 420px; margin: 60px auto; }
+        .logo { text-align: center; margin-bottom: 32px; }
+        .logo-icon { width: 72px; height: 72px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 36px; }
+        .logo h1 { font-size: 28px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+        .logo p { font-size: 15px; color: #666; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 600; color: #333; margin-bottom: 8px; }
+        input { width: 100%; padding: 16px; font-size: 16px; border: 2px solid #e0e0e0; border-radius: 12px; transition: all 0.3s; }
+        input:focus { outline: none; border-color: #ff6b35; box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1); }
+        .btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4); }
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 107, 53, 0.5); }
+        .btn-secondary { background: #f5f5f5; color: #666; margin-top: 12px; }
+        .search-container { margin-bottom: 24px; }
+        .search-box { position: relative; }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #999; }
+        .search-input { width: 100%; padding: 16px 16px 16px 50px; font-size: 16px; border: 2px solid #e0e0e0; border-radius: 12px; transition: all 0.3s; }
+        .search-input:focus { border-color: #ff6b35; box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1); outline: none; }
+        .filter-container { display: flex; gap: 12px; margin-bottom: 24px; padding: 0 4px; }
+        .filter-btn { flex: 1; padding: 12px 20px; border: 2px solid #e0e0e0; background: white; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .filter-btn.active { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; border-color: #ff6b35; }
+        .filter-btn:hover { border-color: #ff6b35; }
+        .restaurant-card { background: white; border-radius: 16px; margin-bottom: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s; }
+        .restaurant-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .restaurant-image { width: 100%; height: 180px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); display: flex; align-items: center; justify-content: center; font-size: 64px; }
+        .restaurant-info { padding: 16px; }
+        .restaurant-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+        .restaurant-name { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+        .restaurant-badge { background: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .restaurant-type { font-size: 14px; color: #666; margin-bottom: 12px; }
+        .restaurant-meta { display: flex; gap: 16px; font-size: 13px; color: #666; }
+        .category-section { margin-bottom: 32px; }
+        .category-header { font-size: 20px; font-weight: 700; color: #1a1a1a; padding: 12px 0; margin-bottom: 16px; border-bottom: 3px solid #ff6b35; }
+        .menu-item-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 16px; display: flex; gap: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .menu-item-info { flex: 1; }
+        .menu-item-header { display: flex; align-items: start; gap: 8px; margin-bottom: 8px; }
+        .veg-indicator { width: 18px; height: 18px; border: 2px solid #10b981; display: flex; align-items: center; justify-content: center; border-radius: 4px; flex-shrink: 0; }
+        .veg-indicator.non-veg { border-color: #ef4444; }
+        .veg-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+        .veg-dot.non-veg { background: #ef4444; }
+        .menu-item-name { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+        .menu-item-price { font-size: 18px; font-weight: 700; color: #ff6b35; }
+        .menu-item-actions { display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .add-btn { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; border: none; padding: 8px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .add-btn:hover { transform: scale(1.05); }
+        .quantity-controls { display: flex; align-items: center; gap: 12px; background: #f5f5f5; padding: 4px; border-radius: 8px; }
+        .qty-btn { background: white; border: none; width: 32px; height: 32px; border-radius: 6px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s; color: #ff6b35; }
+        .qty-btn:hover { background: #ff6b35; color: white; }
+        .qty-display { font-weight: 700; font-size: 16px; min-width: 20px; text-align: center; }
+        .cart-item { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .cart-item-info h4 { font-size: 16px; margin-bottom: 4px; }
+        .cart-item-info p { font-size: 14px; color: #666; }
+        .cart-item-right { display: flex; align-items: center; gap: 16px; }
+        .cart-summary { background: white; border-radius: 16px; padding: 20px; margin-top: 24px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
+        .summary-row.total { font-size: 20px; font-weight: 700; color: #ff6b35; padding-top: 12px; border-top: 2px solid #f0f0f0; margin-top: 12px; }
+        .checkout-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 16px; transition: all 0.3s; }
+        .checkout-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); }
+        .order-success { text-align: center; padding: 40px 20px; }
+        .success-icon { width: 100px; height: 100px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 48px; animation: scaleIn 0.5s ease; }
+        @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+        .order-number { font-size: 32px; font-weight: 700; color: #ff6b35; margin: 16px 0; }
+        .order-details { background: white; border-radius: 16px; padding: 24px; margin-top: 24px; text-align: left; }
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+        .notification { position: fixed; top: 80px; right: 20px; background: white; padding: 16px 24px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: none; z-index: 1000; border-left: 4px solid #10b981; }
+        .notification.show { display: block; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+        .back-btn { background: rgba(0,0,0,0.5); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 8px; }
+        .section-title { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #1a1a1a; }
+        .helper-text { font-size: 13px; color: #666; margin-top: 8px; }
+        .pin-input { letter-spacing: 8px; text-align: center; font-size: 24px; font-weight: 600; }
+        .srn-input { text-transform: uppercase; }
+        .order-status-badge { display: inline-block; padding: 6px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-preparing { background: #dbeafe; color: #1e40af; }
+        .status-ready { background: #d1fae5; color: #065f46; }
+        .status-completed { background: #e5e7eb; color: #374151; }
     </style>
 </head>
 <body>
-    <div id="notification" class="notification">
-        <div id="notification-message"></div>
-    </div>
-
+    <div id="notification" class="notification"><div id="notification-message"></div></div>
     <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-profile">
@@ -784,186 +129,80 @@
             </div>
         </div>
         <div class="sidebar-menu">
-            <button class="sidebar-item" onclick="navigateTo('profile-screen')">
-                <span class="sidebar-item-icon">👤</span>
-                <span>Profile</span>
-            </button>
-            <button class="sidebar-item" onclick="navigateTo('order-history-screen'); loadOrderHistory();">
-                <span class="sidebar-item-icon">📦</span>
-                <span>Order History</span>
-            </button>
-            <button class="sidebar-item" onclick="navigateTo('settings-screen')">
-                <span class="sidebar-item-icon">⚙️</span>
-                <span>Settings</span>
-            </button>
-            <button class="sidebar-item" onclick="logout()">
-                <span class="sidebar-item-icon">🚪</span>
-                <span>Logout</span>
-            </button>
+            <button class="sidebar-item" onclick="navigateTo('profile-screen')"><span class="sidebar-item-icon">👤</span><span>Profile</span></button>
+            <button class="sidebar-item" onclick="navigateTo('order-history-screen'); loadOrderHistory();"><span class="sidebar-item-icon">📦</span><span>Order History</span></button>
+            <button class="sidebar-item" onclick="navigateTo('settings-screen')"><span class="sidebar-item-icon">⚙️</span><span>Settings</span></button>
+            <button class="sidebar-item" onclick="logout()"><span class="sidebar-item-icon">🚪</span><span>Logout</span></button>
         </div>
     </div>
-
-    <!-- Welcome Screen -->
     <div id="welcome-screen" class="screen active">
         <div class="auth-card">
-            <div class="logo">
-                <div class="logo-icon">🍽️</div>
-                <h1>Campus Eats</h1>
-                <p>Order food from campus vendors</p>
-            </div>
+            <div class="logo"><div class="logo-icon">🍽️</div><h1>Campus Eats</h1><p>Order food from campus vendors</p></div>
             <button class="btn btn-primary" onclick="showScreen('login-screen')">Login with SRN</button>
             <button class="btn btn-secondary" onclick="showScreen('register-screen')">New Student? Register</button>
         </div>
     </div>
-
-    <!-- Login Screen -->
     <div id="login-screen" class="screen">
         <div class="auth-card">
-            <div class="logo">
-                <div class="logo-icon">🔐</div>
-                <h1>Login</h1>
-                <p>Enter your credentials</p>
-            </div>
+            <div class="logo"><div class="logo-icon">🔐</div><h1>Login</h1><p>Enter your credentials</p></div>
             <form onsubmit="loginStudent(event)">
-                <div class="form-group">
-                    <label>Student SRN</label>
-                    <input type="text" id="login-srn" class="srn-input" placeholder="R25EA170" required maxlength="8">
-                </div>
-                <div class="form-group">
-                    <label>4-Digit PIN</label>
-                    <input type="password" id="login-pin" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}">
-                </div>
+                <div class="form-group"><label>Student SRN</label><input type="text" id="login-srn" class="srn-input" placeholder="R25EA170" required maxlength="8"></div>
+                <div class="form-group"><label>4-Digit PIN</label><input type="password" id="login-pin" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}"></div>
                 <button type="submit" class="btn btn-primary">Login</button>
             </form>
             <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">Back</button>
         </div>
     </div>
-
-    <!-- Register Screen -->
     <div id="register-screen" class="screen">
         <div class="auth-card">
-            <div class="logo">
-                <div class="logo-icon">📝</div>
-                <h1>Register</h1>
-                <p>Create your account</p>
-            </div>
+            <div class="logo"><div class="logo-icon">📝</div><h1>Register</h1><p>Create your account</p></div>
             <form onsubmit="registerStudent(event)">
-                <div class="form-group">
-                    <label>Student SRN</label>
-                    <input type="text" id="register-srn" class="srn-input" placeholder="R25EA170" required maxlength="8">
-                    <div class="helper-text">Format: R25EA170</div>
-                </div>
-                <div class="form-group">
-                    <label>Create 4-Digit PIN</label>
-                    <input type="password" id="register-pin" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}">
-                </div>
-                <div class="form-group">
-                    <label>Confirm PIN</label>
-                    <input type="password" id="register-pin-confirm" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}">
-                </div>
+                <div class="form-group"><label>Student SRN</label><input type="text" id="register-srn" class="srn-input" placeholder="R25EA170" required maxlength="8"><div class="helper-text">Format: R25EA170</div></div>
+                <div class="form-group"><label>Create 4-Digit PIN</label><input type="password" id="register-pin" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}"></div>
+                <div class="form-group"><label>Confirm PIN</label><input type="password" id="register-pin-confirm" class="pin-input" placeholder="••••" required maxlength="4" pattern="[0-9]{4}"></div>
                 <button type="submit" class="btn btn-primary">Create Account</button>
             </form>
             <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">Back</button>
         </div>
     </div>
-
-    <!-- Main App -->
     <div id="main-app" class="screen">
         <div class="app-header">
-            <div class="header-left">
-                <button class="menu-btn" onclick="openSidebar()">☰</button>
-                <div class="app-title">Campus Eats</div>
-            </div>
-            <div class="header-right">
-                <button class="cart-btn" onclick="navigateTo('cart-screen')">
-                    🛒
-                    <span class="cart-count" id="cart-count">0</span>
-                </button>
-            </div>
+            <div class="header-left"><button class="menu-btn" onclick="openSidebar()">☰</button><div class="app-title">Campus Eats</div></div>
+            <div class="header-right"><button class="cart-btn" onclick="navigateTo('cart-screen')">🛒<span class="cart-count" id="cart-count">0</span></button></div>
         </div>
-
-        <!-- Home Screen -->
         <div id="home-screen" class="screen active">
             <div class="container">
                 <h2 class="section-title">Restaurants</h2>
-                
-                <div class="search-container">
-                    <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input 
-                            type="text" 
-                            class="search-input" 
-                            id="restaurant-search" 
-                            placeholder="Search for restaurants..."
-                            oninput="filterRestaurantsBySearch()"
-                        >
-                    </div>
-                </div>
-
+                <div class="search-container"><div class="search-box"><span class="search-icon">🔍</span><input type="text" class="search-input" id="restaurant-search" placeholder="Search for restaurants..." oninput="filterRestaurantsBySearch()"></div></div>
                 <div id="restaurants-list"></div>
             </div>
         </div>
-
-        <!-- Restaurant Menu Screen -->
         <div id="restaurant-menu-screen" class="screen">
             <div class="container">
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
                 <h2 class="section-title" id="restaurant-menu-title">Menu</h2>
-                
-                <div class="search-container">
-                    <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input 
-                            type="text" 
-                            class="search-input" 
-                            id="menu-search" 
-                            placeholder="Search for food items..."
-                            oninput="filterMenuBySearch()"
-                        >
-                    </div>
-                </div>
-
+                <div class="search-container"><div class="search-box"><span class="search-icon">🔍</span><input type="text" class="search-input" id="menu-search" placeholder="Search for food items..." oninput="filterMenuBySearch()"></div></div>
                 <div class="filter-container">
-                    <button class="filter-btn active" onclick="filterMenuItems('all', this)">
-                        🍽️ All
-                    </button>
-                    <button class="filter-btn" onclick="filterMenuItems('VEG', this)">
-                        🟢 Veg
-                    </button>
-                    <button class="filter-btn" onclick="filterMenuItems('NON-VEG', this)">
-                        🔴 Non-Veg
-                    </button>
+                    <button class="filter-btn active" onclick="filterMenuItems('all', this)">🍽️ All</button>
+                    <button class="filter-btn" onclick="filterMenuItems('VEG', this)">🟢 Veg</button>
+                    <button class="filter-btn" onclick="filterMenuItems('NON-VEG', this)">🔴 Non-Veg</button>
                 </div>
-
                 <div id="menu-items-list"></div>
             </div>
         </div>
-
-        <!-- Cart Screen -->
         <div id="cart-screen" class="screen">
             <div class="container">
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
                 <h2 class="section-title">Your Cart</h2>
                 <div id="cart-items-list"></div>
                 <div class="cart-summary" id="cart-summary" style="display:none;">
-                    <div class="summary-row">
-                        <span>Subtotal</span>
-                        <span id="subtotal">₹0</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Taxes & Fees</span>
-                        <span id="taxes">₹0</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Total</span>
-                        <span id="total">₹0</span>
-                    </div>
+                    <div class="summary-row"><span>Subtotal</span><span id="subtotal">₹0</span></div>
+                    <div class="summary-row"><span>Taxes & Fees</span><span id="taxes">₹0</span></div>
+                    <div class="summary-row total"><span>Total</span><span id="total">₹0</span></div>
                     <button class="checkout-btn" onclick="placeOrder()">Place Order (Test Mode)</button>
                 </div>
             </div>
         </div>
-
-        <!-- Order Confirmation Screen -->
         <div id="order-confirm-screen" class="screen">
             <div class="container">
                 <div class="order-success">
@@ -972,38 +211,24 @@
                     <div class="order-number" id="order-number">#12345</div>
                     <p>Sent to vendor for preparation</p>
                     <p style="font-size: 14px; color: #666; margin-top: 8px;">Pickup in 15-20 minutes</p>
-                    
                     <div class="order-details" id="order-details"></div>
-                    
-                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="navigateTo('home-screen')">
-                        Back to Home
-                    </button>
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="navigateTo('home-screen')">Back to Home</button>
                 </div>
             </div>
         </div>
-
-        <!-- Profile Screen -->
         <div id="profile-screen" class="screen">
             <div class="container">
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
                 <h2 class="section-title">Profile</h2>
                 <div class="auth-card" style="margin: 0;">
                     <form onsubmit="updateProfile(event)">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="profile-name" placeholder="Enter your name">
-                        </div>
-                        <div class="form-group">
-                            <label>SRN</label>
-                            <input type="text" id="profile-srn" disabled>
-                        </div>
+                        <div class="form-group"><label>Full Name</label><input type="text" id="profile-name" placeholder="Enter your name"></div>
+                        <div class="form-group"><label>SRN</label><input type="text" id="profile-srn" disabled></div>
                         <button type="submit" class="btn btn-primary">Save Profile</button>
                     </form>
                 </div>
             </div>
         </div>
-
-        <!-- Order History Screen -->
         <div id="order-history-screen" class="screen">
             <div class="container">
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
@@ -1011,550 +236,18 @@
                 <div id="order-history-list"></div>
             </div>
         </div>
-
-        <!-- Settings Screen -->
         <div id="settings-screen" class="screen">
             <div class="container">
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
                 <h2 class="section-title">Settings</h2>
-                <div class="auth-card" style="margin: 0;">
-                    <p style="text-align: center; color: #666;">Settings coming soon...</p>
-                </div>
+                <div class="auth-card" style="margin: 0;"><p style="text-align: center; color: #666;">Settings coming soon...</p></div>
             </div>
         </div>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
-            authDomain: "campus-eats-007.firebaseapp.com",
-            projectId: "campus-eats-007",
-            storageBucket: "campus-eats-007.firebasestorage.app",
-            messagingSenderId: "201751423832",
-            appId: "1:201751423832:web:6d4692dbc1053789fb132d"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        let currentUser = null;
-        let cart = [];
-        let currentRestaurant = null;
-        let allRestaurants = [];
-        let currentMenuFilter = 'all';
-        let currentMenuItems = [];
-        let currentMenuSearchTerm = '';
-
-        function hashPIN(pin) {
-            return CryptoJS.SHA256(pin).toString();
-        }
-
-        function showNotification(message) {
-            const notification = document.getElementById('notification');
-            document.getElementById('notification-message').textContent = message;
-            notification.classList.add('show');
-            setTimeout(() => notification.classList.remove('show'), 3000);
-        }
-
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-
-        function navigateTo(screenId) {
-            closeSidebar();
-            const mainApp = document.getElementById('main-app');
-            mainApp.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-            
-            if (screenId === 'cart-screen') {
-                displayCart();
-            } else if (screenId === 'order-history-screen') {
-                loadOrderHistory();
-            }
-        }
-
-        function openSidebar() {
-            document.getElementById('sidebar').classList.add('active');
-            document.getElementById('overlay').classList.add('active');
-        }
-
-        function closeSidebar() {
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('overlay').classList.remove('active');
-        }
-
-        function updateCartCount() {
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('cart-count').textContent = count;
-        }
-
-        async function registerStudent(e) {
-            e.preventDefault();
-            const srn = document.getElementById('register-srn').value.toUpperCase();
-            const pin = document.getElementById('register-pin').value;
-            const confirmPin = document.getElementById('register-pin-confirm').value;
-
-            if (pin !== confirmPin) {
-                showNotification('PINs do not match!');
-                return;
-            }
-
-            try {
-                const doc = await db.collection('students').doc(srn).get();
-                if (doc.exists) {
-                    showNotification('SRN already registered!');
-                    return;
-                }
-
-                await db.collection('students').doc(srn).set({
-                    pinHash: hashPIN(pin),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                localStorage.setItem('srn', srn);
-                currentUser = { srn };
-                showNotification('Registration successful!');
-                loadApp();
-            } catch (error) {
-                showNotification('Registration failed!');
-                console.error(error);
-            }
-        }
-
-        async function loginStudent(e) {
-            e.preventDefault();
-            const srn = document.getElementById('login-srn').value.toUpperCase();
-            const pin = document.getElementById('login-pin').value;
-
-            try {
-                const doc = await db.collection('students').doc(srn).get();
-                if (!doc.exists) {
-                    showNotification('SRN not found!');
-                    return;
-                }
-
-                if (doc.data().pinHash !== hashPIN(pin)) {
-                    showNotification('Incorrect PIN!');
-                    return;
-                }
-
-                localStorage.setItem('srn', srn);
-                currentUser = { srn, ...doc.data() };
-                showNotification('Login successful!');
-                loadApp();
-            } catch (error) {
-                showNotification('Login failed!');
-                console.error(error);
-            }
-        }
-
-        async function loadApp() {
-            showScreen('main-app');
-            
-            setTimeout(() => {
-                const mainApp = document.getElementById('main-app');
-                mainApp.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.getElementById('home-screen').classList.add('active');
-            }, 100);
-            
-            document.getElementById('sidebar-srn').textContent = `SRN: ${currentUser.srn}`;
-            document.getElementById('sidebar-name').textContent = currentUser.name || 'Guest User';
-            
-            document.getElementById('profile-srn').value = currentUser.srn;
-            document.getElementById('profile-name').value = currentUser.name || '';
-            
-            await loadRestaurants();
-        }
-
-        async function loadRestaurants() {
-            try {
-                const snapshot = await db.collection('vendors').where('isActive', '==', true).get();
-                allRestaurants = [];
-                
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    allRestaurants.push({ 
-                        id: doc.id, 
-                        name: data.storeName || doc.id,
-                        ...data 
-                    });
-                });
-
-                displayRestaurants();
-            } catch (error) {
-                console.error('Error loading restaurants:', error);
-                showNotification('Error loading restaurants');
-            }
-        }
-
-        function filterRestaurantsBySearch() {
-            const searchTerm = document.getElementById('restaurant-search').value.toLowerCase();
-            displayRestaurants(searchTerm);
-        }
-
-        function displayRestaurants(searchTerm = '') {
-            const container = document.getElementById('restaurants-list');
-            
-            let filtered = allRestaurants.filter(restaurant => 
-                restaurant.name.toLowerCase().includes(searchTerm)
-            );
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>No restaurants found</p></div>';
-                return;
-            }
-
-            container.innerHTML = filtered.map(restaurant => `
-                <div class="restaurant-card" onclick='openRestaurant(${JSON.stringify({id: restaurant.id, name: restaurant.name}).replace(/'/g, "&#39;")})'>
-                    <div class="restaurant-image">🍽️</div>
-                    <div class="restaurant-info">
-                        <div class="restaurant-header">
-                            <div class="restaurant-name">${restaurant.name}</div>
-                            <div class="restaurant-badge">
-                                ⭐ ${restaurant.rating || '4.5'}
-                            </div>
-                        </div>
-                        <div class="restaurant-type">Multi-Cuisine</div>
-                        <div class="restaurant-meta">
-                            <span>⏱️ ${restaurant.prepTime || '15-20'} min</span>
-                            <span>📍 Campus</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function openRestaurant(restaurant) {
-            currentRestaurant = restaurant;
-            currentMenuFilter = 'all';
-            currentMenuSearchTerm = '';
-            
-            document.getElementById('menu-search').value = '';
-            
-            try {
-                console.log('Loading menu for:', restaurant.name);
-                
-                // CORRECTED PATH: menu/{storeName}/items
-                const snapshot = await db.collection('menu')
-                    .doc(restaurant.name)
-                    .collection('items')
-                    .get();
-                
-                currentMenuItems = [];
-                snapshot.forEach(doc => {
-                    currentMenuItems.push({ 
-                        id: doc.id, 
-                        storeName: restaurant.name,
-                        ...doc.data() 
-                    });
-                });
-
-                console.log('Loaded items:', currentMenuItems.length);
-
-                document.getElementById('restaurant-menu-title').textContent = restaurant.name;
-                
-                document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                document.querySelectorAll('#restaurant-menu-screen .filter-btn')[0].classList.add('active');
-                
-                displayMenuItemsByCategory(currentMenuItems);
-                navigateTo('restaurant-menu-screen');
-            } catch (error) {
-                console.error('Error loading menu:', error);
-                showNotification('Error loading menu');
-            }
-        }
-
-        function filterMenuItems(filter, button) {
-            currentMenuFilter = filter;
-            document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            
-            applyFiltersAndDisplay();
-        }
-
-        function filterMenuBySearch() {
-            currentMenuSearchTerm = document.getElementById('menu-search').value.toLowerCase();
-            applyFiltersAndDisplay();
-        }
-
-        function applyFiltersAndDisplay() {
-            let filtered = currentMenuItems;
-            
-            if (currentMenuFilter === 'VEG') {
-                filtered = filtered.filter(item => 
-                    item.vegNonVeg && item.vegNonVeg.toUpperCase() === 'VEG'
-                );
-            } else if (currentMenuFilter === 'NON-VEG') {
-                filtered = filtered.filter(item => 
-                    item.vegNonVeg && item.vegNonVeg.toUpperCase() === 'NON-VEG'
-                );
-            }
-            
-            if (currentMenuSearchTerm) {
-                filtered = filtered.filter(item =>
-                    item.name.toLowerCase().includes(currentMenuSearchTerm)
-                );
-            }
-            
-            displayMenuItemsByCategory(filtered);
-        }
-
-        function displayMenuItemsByCategory(items) {
-            const container = document.getElementById('menu-items-list');
-            
-            if (items.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🍽️</div><p>No items found</p></div>';
-                return;
-            }
-
-            const categories = {};
-            items.forEach(item => {
-                const category = item.category || 'Other';
-                if (!categories[category]) {
-                    categories[category] = [];
-                }
-                categories[category].push(item);
-            });
-
-            let html = '';
-            for (const [category, categoryItems] of Object.entries(categories)) {
-                html += `
-                    <div class="category-section">
-                        <div class="category-header">${category}</div>
-                        ${categoryItems.map(item => {
-                            const cartItem = cart.find(c => c.id === item.id);
-                            const quantity = cartItem ? cartItem.quantity : 0;
-                            const isVeg = item.vegNonVeg && item.vegNonVeg.toUpperCase() === 'VEG';
-                            
-                            return `
-                                <div class="menu-item-card">
-                                    <div class="menu-item-info">
-                                        <div class="menu-item-header">
-                                            <div class="veg-indicator ${!isVeg ? 'non-veg' : ''}">
-                                                <div class="veg-dot ${!isVeg ? 'non-veg' : ''}"></div>
-                                            </div>
-                                            <div class="menu-item-name">${item.name}</div>
-                                        </div>
-                                        <div class="menu-item-price">₹${item.price}</div>
-                                    </div>
-                                    <div class="menu-item-actions">
-                                        ${quantity === 0 ? `
-                                            <button class="add-btn" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&#39;")})'>Add</button>
-                                        ` : `
-                                            <div class="quantity-controls">
-                                                <button class="qty-btn" onclick='decreaseQuantity("${item.id}")'>-</button>
-                                                <div class="qty-display">${quantity}</div>
-                                                <button class="qty-btn" onclick='increaseQuantity("${item.id}")'>+</button>
-                                            </div>
-                                        `}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-            }
-
-            container.innerHTML = html;
-        }
-
-        function addToCart(item) {
-            cart.push({ ...item, quantity: 1 });
-            updateCartCount();
-            applyFiltersAndDisplay();
-        }
-
-        function increaseQuantity(itemId) {
-            const item = cart.find(c => c.id === itemId);
-            if (item) item.quantity++;
-            updateCartCount();
-            applyFiltersAndDisplay();
-        }
-
-        function decreaseQuantity(itemId) {
-            const item = cart.find(c => c.id === itemId);
-            if (item) {
-                item.quantity--;
-                if (item.quantity === 0) {
-                    cart = cart.filter(c => c.id !== itemId);
-                }
-            }
-            updateCartCount();
-            applyFiltersAndDisplay();
-        }
-
-        function displayCart() {
-            const container = document.getElementById('cart-items-list');
-            const summary = document.getElementById('cart-summary');
-            
-            if (cart.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🛒</div><p>Your cart is empty</p></div>';
-                summary.style.display = 'none';
-                return;
-            }
-
-            container.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <div class="cart-item-info">
-                        <h4>${item.name}</h4>
-                        <p>₹${item.price} × ${item.quantity}</p>
-                    </div>
-                    <div class="cart-item-right">
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick='decreaseQuantity("${item.id}"); displayCart();'>-</button>
-                            <div class="qty-display">${item.quantity}</div>
-                            <button class="qty-btn" onclick='increaseQuantity("${item.id}"); displayCart();'>+</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const taxes = Math.round(subtotal * 0.05);
-            const total = subtotal + taxes;
-
-            document.getElementById('subtotal').textContent = `₹${subtotal}`;
-            document.getElementById('taxes').textContent = `₹${taxes}`;
-            document.getElementById('total').textContent = `₹${total}`;
-            summary.style.display = 'block';
-        }
-
-        async function placeOrder() {
-            if (cart.length === 0) return;
-
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const total = subtotal + Math.round(subtotal * 0.05);
-            
-            const orderNumber = 'CE' + Date.now().toString().slice(-8);
-
-            try {
-                // CRITICAL: Save order with storeName for vendor filtering
-                await db.collection('orders').add({
-                    orderNumber,
-                    srn: currentUser.srn,
-                    items: cart,
-                    total,
-                    status: 'pending',
-                    storeName: currentRestaurant.name,  // Links to vendor
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                document.getElementById('order-number').textContent = `#${orderNumber}`;
-                document.getElementById('order-details').innerHTML = `
-                    <div class="summary-row">
-                        <span>Restaurant</span>
-                        <span>${currentRestaurant.name}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Items</span>
-                        <span>${cart.length}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Status</span>
-                        <span class="order-status-badge status-pending">Pending</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Total</span>
-                        <span>₹${total}</span>
-                    </div>
-                `;
-
-                cart = [];
-                updateCartCount();
-                navigateTo('order-confirm-screen');
-                
-                showNotification('Order placed!');
-            } catch (error) {
-                console.error('Error saving order:', error);
-                showNotification('Order failed!');
-            }
-        }
-
-        async function loadOrderHistory() {
-            try {
-                const snapshot = await db.collection('orders')
-                    .where('srn', '==', currentUser.srn)
-                    .orderBy('createdAt', 'desc')
-                    .limit(20)
-                    .get();
-
-                const container = document.getElementById('order-history-list');
-                
-                if (snapshot.empty) {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><p>No orders yet</p></div>';
-                    return;
-                }
-
-                const orders = [];
-                snapshot.forEach(doc => orders.push({ id: doc.id, ...doc.data() }));
-
-                container.innerHTML = orders.map(order => `
-                    <div class="cart-item">
-                        <div class="cart-item-info">
-                            <h4>#${order.orderNumber}</h4>
-                            <p>${order.storeName} • ${order.items.length} items</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-weight: 700; color: #ff6b35;">₹${order.total}</div>
-                            <div class="order-status-badge status-${order.status}">${order.status}</div>
-                        </div>
-                    </div>
-                `).join('');
-            } catch (error) {
-                console.error('Error loading orders:', error);
-                showNotification('Failed to load orders');
-            }
-        }
-
-        async function updateProfile(e) {
-            e.preventDefault();
-            const name = document.getElementById('profile-name').value;
-
-            try {
-                await db.collection('students').doc(currentUser.srn).update({ name });
-                currentUser.name = name;
-                document.getElementById('sidebar-name').textContent = name;
-                showNotification('Profile updated!');
-            } catch (error) {
-                showNotification('Update failed!');
-                console.error(error);
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('srn');
-            currentUser = null;
-            cart = [];
-            showScreen('welcome-screen');
-            closeSidebar();
-        }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            const srn = localStorage.getItem('srn');
-            if (srn) {
-                try {
-                    const doc = await db.collection('students').doc(srn).get();
-                    if (doc.exists) {
-                        currentUser = { srn, ...doc.data() };
-                        loadApp();
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-
-            document.querySelectorAll('.srn-input').forEach(input => {
-                input.addEventListener('input', e => {
-                    e.target.value = e.target.value.toUpperCase();
-                });
-            });
-        });
+        const firebaseConfig={apiKey:"AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",authDomain:"campus-eats-007.firebaseapp.com",projectId:"campus-eats-007",storageBucket:"campus-eats-007.firebasestorage.app",messagingSenderId:"201751423832",appId:"1:201751423832:web:6d4692dbc1053789fb132d"};firebase.initializeApp(firebaseConfig);const db=firebase.firestore();let currentUser=null,cart=[],currentRestaurant=null,allRestaurants=[],currentMenuFilter='all',currentMenuItems=[],currentMenuSearchTerm='';function hashPIN(pin){return CryptoJS.SHA256(pin).toString()}function showNotification(message){const notification=document.getElementById('notification');document.getElementById('notification-message').textContent=message;notification.classList.add('show');setTimeout(()=>notification.classList.remove('show'),3000)}function showScreen(screenId){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(screenId).classList.add('active')}function navigateTo(screenId){closeSidebar();const mainApp=document.getElementById('main-app');mainApp.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(screenId).classList.add('active');if(screenId==='cart-screen'){displayCart()}else if(screenId==='order-history-screen'){loadOrderHistory()}}function openSidebar(){document.getElementById('sidebar').classList.add('active');document.getElementById('overlay').classList.add('active')}function closeSidebar(){document.getElementById('sidebar').classList.remove('active');document.getElementById('overlay').classList.remove('active')}function updateCartCount(){const count=cart.reduce((sum,item)=>sum+item.quantity,0);document.getElementById('cart-count').textContent=count}async function registerStudent(e){e.preventDefault();const srn=document.getElementById('register-srn').value.toUpperCase(),pin=document.getElementById('register-pin').value,confirmPin=document.getElementById('register-pin-confirm').value;if(pin!==confirmPin){showNotification('PINs do not match!');return}try{const doc=await db.collection('students').doc(srn).get();if(doc.exists){showNotification('SRN already registered!');return}await db.collection('students').doc(srn).set({pinHash:hashPIN(pin),createdAt:firebase.firestore.FieldValue.serverTimestamp()});localStorage.setItem('srn',srn);currentUser={srn};showNotification('Registration successful!');loadApp()}catch(error){showNotification('Registration failed!');console.error(error)}}async function loginStudent(e){e.preventDefault();const srn=document.getElementById('login-srn').value.toUpperCase(),pin=document.getElementById('login-pin').value;try{const doc=await db.collection('students').doc(srn).get();if(!doc.exists){showNotification('SRN not found!');return}if(doc.data().pinHash!==hashPIN(pin)){showNotification('Incorrect PIN!');return}localStorage.setItem('srn',srn);currentUser={srn,...doc.data()};showNotification('Login successful!');loadApp()}catch(error){showNotification('Login failed!');console.error(error)}}async function loadApp(){showScreen('main-app');setTimeout(()=>{const mainApp=document.getElementById('main-app');mainApp.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('home-screen').classList.add('active')},100);document.getElementById('sidebar-srn').textContent=`SRN: ${currentUser.srn}`;document.getElementById('sidebar-name').textContent=currentUser.name||'Guest User';document.getElementById('profile-srn').value=currentUser.srn;document.getElementById('profile-name').value=currentUser.name||'';await loadRestaurants()}async function loadRestaurants(){try{const snapshot=await db.collection('vendors').where('isActive','==',true).get();allRestaurants=[];snapshot.forEach(doc=>{const data=doc.data();allRestaurants.push({id:doc.id,name:data.storeName||doc.id,...data})});displayRestaurants()}catch(error){console.error('Error loading restaurants:',error);showNotification('Error loading restaurants')}}function filterRestaurantsBySearch(){const searchTerm=document.getElementById('restaurant-search').value.toLowerCase();displayRestaurants(searchTerm)}function displayRestaurants(searchTerm=''){const container=document.getElementById('restaurants-list');let filtered=allRestaurants.filter(restaurant=>restaurant.name.toLowerCase().includes(searchTerm));if(filtered.length===0){container.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><p>No restaurants found</p></div>';return}container.innerHTML=filtered.map(restaurant=>`<div class="restaurant-card" onclick='openRestaurant(${JSON.stringify({id:restaurant.id,name:restaurant.name}).replace(/'/g,"&#39;")})'><div class="restaurant-image">🍽️</div><div class="restaurant-info"><div class="restaurant-header"><div class="restaurant-name">${restaurant.name}</div><div class="restaurant-badge">⭐ ${restaurant.rating||'4.5'}</div></div><div class="restaurant-type">Multi-Cuisine</div><div class="restaurant-meta"><span>⏱️ ${restaurant.prepTime||'15-20'} min</span><span>📍 Campus</span></div></div></div>`).join('')}async function openRestaurant(restaurant){currentRestaurant=restaurant;currentMenuFilter='all';currentMenuSearchTerm='';document.getElementById('menu-search').value='';try{console.log('Loading menu for:',restaurant.name);const snapshot=await db.collection('menu_items').where('vendorId','==',restaurant.name.toLowerCase().replace(/\s+/g,'_')).get();currentMenuItems=[];snapshot.forEach(doc=>{const data=doc.data();currentMenuItems.push({id:doc.id,storeName:restaurant.name,name:data.name,price:data.price,category:data.category,vegNonVeg:data.vegNonVeg,...data})});console.log('Loaded items:',currentMenuItems.length);document.getElementById('restaurant-menu-title').textContent=restaurant.name;document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn=>{btn.classList.remove('active')});document.querySelectorAll('#restaurant-menu-screen .filter-btn')[0].classList.add('active');displayMenuItemsByCategory(currentMenuItems);navigateTo('restaurant-menu-screen')}catch(error){console.error('Error loading menu:',error);showNotification('Error loading menu: '+error.message)}}function filterMenuItems(filter,button){currentMenuFilter=filter;document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn=>btn.classList.remove('active'));button.classList.add('active');applyFiltersAndDisplay()}function filterMenuBySearch(){currentMenuSearchTerm=document.getElementById('menu-search').value.toLowerCase();applyFiltersAndDisplay()}function applyFiltersAndDisplay(){let filtered=currentMenuItems;if(currentMenuFilter==='VEG'){filtered=filtered.filter(item=>item.vegNonVeg&&item.vegNonVeg.toUpperCase()==='VEG')}else if(currentMenuFilter==='NON-VEG'){filtered=filtered.filter(item=>item.vegNonVeg&&item.vegNonVeg.toUpperCase()==='NON-VEG')}if(currentMenuSearchTerm){filtered=filtered.filter(item=>item.name.toLowerCase().includes(currentMenuSearchTerm))}displayMenuItemsByCategory(filtered)}function displayMenuItemsByCategory(items){const container=document.getElementById('menu-items-list');if(items.length===0){container.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><p>No items found</p></div>';return}const categories={};items.forEach(item=>{const category=item.category||'Other';if(!categories[category]){categories[category]=[]}categories[category].push(item)});let html='';for(const[category,categoryItems]of Object.entries(categories)){html+=`<div class="category-section"><div class="category-header">${category}</div>${categoryItems.map(item=>{const cartItem=cart.find(c=>c.id===item.id),quantity=cartItem?cartItem.quantity:0,isVeg=item.vegNonVeg&&item.vegNonVeg.toUpperCase()==='VEG';return`<div class="menu-item-card"><div class="menu-item-info"><div class="menu-item-header"><div class="veg-indicator ${!isVeg?'non-veg':''}"><div class="veg-dot ${!isVeg?'non-veg':''}"></div></div><div class="menu-item-name">${item.name}</div></div><div class="menu-item-price">₹${item.price}</div></div><div class="menu-item-actions">${quantity===0?`<button class="add-btn" onclick='addToCart(${JSON.stringify(item).replace(/'/g,"&#39;")})'>Add</button>`:`<div class="quantity-controls"><button class="qty-btn" onclick='decreaseQuantity("${item.id}")'>-</button><div class="qty-display">${quantity}</div><button class="qty-btn" onclick='increaseQuantity("${item.id}")'>+</button></div>`}</div></div>`}).join('')}</div>`}container.innerHTML=html}function addToCart(item){cart.push({...item,quantity:1});updateCartCount();applyFiltersAndDisplay()}function increaseQuantity(itemId){const item=cart.find(c=>c.id===itemId);if(item)item.quantity++;updateCartCount();applyFiltersAndDisplay()}function decreaseQuantity(itemId){const item=cart.find(c=>c.id===itemId);if(item){item.quantity--;if(item.quantity===0){cart=cart.filter(c=>c.id!==itemId)}}updateCartCount();applyFiltersAndDisplay()}function displayCart(){const container=document.getElementById('cart-items-list'),summary=document.getElementById('cart-summary');if(cart.length===0){container.innerHTML='<div class="empty-state"><div class="empty-icon">🛒</div><p>Your cart is empty</p></div>';summary.style.display='none';return}container.innerHTML=cart.map(item=>`<div class="cart-item"><div class="cart-item-info"><h4>${item.name}</h4><p>₹${item.price} × ${item.quantity}</p></div><div class="cart-item-right"><div class="quantity-controls"><button class="qty-btn" onclick='decreaseQuantity("${item.id}"); displayCart();'>-</button><div class="qty-display">${item.quantity}</div><button class="qty-btn" onclick='increaseQuantity("${item.id}"); displayCart();'>+</button></div></div></div>`).join('');const subtotal=cart.reduce((sum,item)=>sum+(item.price*item.quantity),0),taxes=Math.round(subtotal*0.05),total=subtotal+taxes;document.getElementById('subtotal').textContent=`₹${subtotal}`;document.getElementById('taxes').textContent=`₹${taxes}`;document.getElementById('total').textContent=`₹${total}`;summary.style.display='block'}async function placeOrder(){if(cart.length===0)return;const subtotal=cart.reduce((sum,item)=>sum+(item.price*item.quantity),0),total=subtotal+Math.round(subtotal*0.05),orderNumber='CE'+Date.now().toString().slice(-8);try{await db.collection('orders').add({orderNumber,srn:currentUser.srn,items:cart,total,status:'pending',storeName:currentRestaurant.name,createdAt:firebase.firestore.FieldValue.serverTimestamp()});document.getElementById('order-number').textContent=`#${orderNumber}`;document.getElementById('order-details').innerHTML=`<div class="summary-row"><span>Restaurant</span><span>${currentRestaurant.name}</span></div><div class="summary-row"><span>Items</span><span>${cart.length}</span></div><div class="summary-row"><span>Status</span><span class="order-status-badge status-pending">Pending</span></div><div class="summary-row total"><span>Total</span><span>₹${total}</span></div>`;cart=[];updateCartCount();navigateTo('order-confirm-screen');showNotification('Order placed!')}catch(error){console.error('Error saving order:',error);showNotification('Order failed!')}}async function loadOrderHistory(){try{const snapshot=await db.collection('orders').where('srn','==',currentUser.srn).orderBy('createdAt','desc').limit(20).get(),container=document.getElementById('order-history-list');if(snapshot.empty){container.innerHTML='<div class="empty-state"><div class="empty-icon">📦</div><p>No orders yet</p></div>';return}const orders=[];snapshot.forEach(doc=>orders.push({id:doc.id,...doc.data()}));container.innerHTML=orders.map(order=>`<div class="cart-item"><div class="cart-item-info"><h4>#${order.orderNumber}</h4><p>${order.storeName} • ${order.items.length} items</p></div><div style="text-align: right;"><div style="font-weight: 700; color: #ff6b35;">₹${order.total}</div><div class="order-status-badge status-${order.status}">${order.status}</div></div></div>`).join('')}catch(error){console.error('Error loading orders:',error);showNotification('Failed to load orders')}}async function updateProfile(e){e.preventDefault();const name=document.getElementById('profile-name').value;try{await db.collection('students').doc(currentUser.srn).update({name});currentUser.name=name;document.getElementById('sidebar-name').textContent=name;showNotification('Profile updated!')}catch(error){showNotification('Update failed!');console.error(error)}}function logout(){localStorage.removeItem('srn');currentUser=null;cart=[];showScreen('welcome-screen');closeSidebar()}window.addEventListener('DOMContentLoaded',async()=>{const srn=localStorage.getItem('srn');if(srn){try{const doc=await db.collection('students').doc(srn).get();if(doc.exists){currentUser={srn,...doc.data()};loadApp()}}catch(error){console.error(error)}}document.querySelectorAll('.srn-input').forEach(input=>{input.addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase()})})});
     </script>
 </body>
 </html>
