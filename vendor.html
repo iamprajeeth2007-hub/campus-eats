@@ -34,7 +34,6 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             max-width: 400px;
             width: 100%;
-            text-align: center;
         }
 
         .logo-icon {
@@ -53,38 +52,98 @@
             font-size: 28px;
             color: #1a1a1a;
             margin-bottom: 8px;
+            text-align: center;
         }
 
         .login-card p {
             color: #666;
             margin-bottom: 32px;
             font-size: 15px;
+            text-align: center;
         }
 
-        .google-btn {
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
             width: 100%;
-            padding: 16px;
-            background: white;
+            padding: 14px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            font-size: 15px;
             transition: all 0.3s ease;
         }
 
-        .google-btn:hover {
+        .form-group input:focus {
+            outline: none;
             border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .google-icon {
-            width: 24px;
-            height: 24px;
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid #fecaca;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .toggle-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .toggle-form a:hover {
+            text-decoration: underline;
         }
 
         /* Dashboard */
@@ -483,16 +542,44 @@
         <div class="login-card">
             <div class="logo-icon">👨‍🍳</div>
             <h1>Vendor Dashboard</h1>
-            <p>Sign in with your Gmail account</p>
-            <button class="google-btn" onclick="loginWithGoogle()">
-                <svg class="google-icon" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continue with Google
-            </button>
+            <p id="form-subtitle">Sign in to your account</p>
+            
+            <div class="error-message" id="error-message"></div>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="vendor@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="login-btn" id="login-btn">Sign In</button>
+            </form>
+
+            <!-- Register Form (Hidden by default) -->
+            <form id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-name">Vendor Name</label>
+                    <input type="text" id="register-name" required placeholder="Your shop name">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" required placeholder="vendor@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" required placeholder="Minimum 6 characters">
+                </div>
+                <button type="submit" class="login-btn" id="register-btn">Create Account</button>
+            </form>
+
+            <div class="toggle-form">
+                <span id="toggle-text">Don't have an account? </span>
+                <a href="#" id="toggle-link" onclick="toggleForm(event)">Sign Up</a>
+            </div>
         </div>
     </div>
 
@@ -545,10 +632,10 @@
                 <div class="section-header">
                     <h2>Orders</h2>
                     <div class="filter-tabs">
-                        <div class="filter-tab active" onclick="filterOrders('all')">All</div>
-                        <div class="filter-tab" onclick="filterOrders('pending')">Pending</div>
-                        <div class="filter-tab" onclick="filterOrders('preparing')">Preparing</div>
-                        <div class="filter-tab" onclick="filterOrders('ready')">Ready</div>
+                        <div class="filter-tab active" onclick="filterOrders('all', event)">All</div>
+                        <div class="filter-tab" onclick="filterOrders('pending', event)">Pending</div>
+                        <div class="filter-tab" onclick="filterOrders('preparing', event)">Preparing</div>
+                        <div class="filter-tab" onclick="filterOrders('ready', event)">Ready</div>
                     </div>
                 </div>
                 <div class="orders-list" id="orders-list">
@@ -566,12 +653,12 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-             apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
-    authDomain: "campus-eats-007.firebaseapp.com",
-    projectId: "campus-eats-007",
-    storageBucket: "campus-eats-007.firebasestorage.app",
-    messagingSenderId: "201751423832",
-    appId: "1:201751423832:web:6d4692dbc1053789fb132d"
+            apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
+            authDomain: "campus-eats-007.firebaseapp.com",
+            projectId: "campus-eats-007",
+            storageBucket: "campus-eats-007.firebasestorage.app",
+            messagingSenderId: "201751423832",
+            appId: "1:201751423832:web:6d4692dbc1053789fb132d"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -580,6 +667,48 @@
 
         let currentFilter = 'all';
         let ordersListener = null;
+        let isLoginForm = true;
+
+        // Toggle between login and register forms
+        function toggleForm(e) {
+            e.preventDefault();
+            isLoginForm = !isLoginForm;
+            
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const subtitle = document.getElementById('form-subtitle');
+            const toggleText = document.getElementById('toggle-text');
+            const toggleLink = document.getElementById('toggle-link');
+            
+            if (isLoginForm) {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                subtitle.textContent = 'Sign in to your account';
+                toggleText.textContent = "Don't have an account? ";
+                toggleLink.textContent = 'Sign Up';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                subtitle.textContent = 'Create a new vendor account';
+                toggleText.textContent = 'Already have an account? ';
+                toggleLink.textContent = 'Sign In';
+            }
+            
+            hideError();
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        // Hide error message
+        function hideError() {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.classList.remove('show');
+        }
 
         // Show notification
         function showNotification(message, type = 'success') {
@@ -603,30 +732,94 @@
             setTimeout(() => notification.classList.remove('show'), 4000);
         }
 
-        // Google Login
-        async function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
+        // Login Form Submit
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('login-btn');
+            
+            btn.disabled = true;
+            btn.textContent = 'Signing in...';
             
             try {
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                showNotification('Login successful!');
+                showDashboard(userCredential.user);
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Login failed. Please try again.';
                 
-                // Store vendor info
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'No account found with this email.';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = 'Incorrect password.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email address.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = 'Too many failed attempts. Please try again later.';
+                }
+                
+                showError(errorMessage);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Sign In';
+            }
+        });
+
+        // Register Form Submit
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const btn = document.getElementById('register-btn');
+            
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters long.');
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Store vendor info in Firestore
                 await db.collection('vendors').doc(user.uid).set({
                     email: user.email,
-                    name: user.displayName,
-                    photoURL: user.photoURL,
+                    name: name,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
+                });
 
-                showNotification('Login successful!');
+                showNotification('Account created successfully!');
                 showDashboard(user);
                 
             } catch (error) {
-                console.error('Login error:', error);
-                showNotification('Login failed', 'error');
+                console.error('Registration error:', error);
+                let errorMessage = 'Registration failed. Please try again.';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = 'An account with this email already exists.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Invalid email address.';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Password is too weak.';
+                }
+                
+                showError(errorMessage);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Create Account';
             }
-        }
+        });
 
         // Logout
         async function logout() {
@@ -644,14 +837,29 @@
         }
 
         // Show Dashboard
-        function showDashboard(user) {
+        async function showDashboard(user) {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').classList.add('active');
             
-            // Update user info
-            const userName = user.displayName || user.email;
-            document.getElementById('user-name').textContent = userName;
-            document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
+            // Get vendor info from Firestore
+            try {
+                const vendorDoc = await db.collection('vendors').doc(user.uid).get();
+                const vendorData = vendorDoc.data();
+                const userName = vendorData?.name || user.email;
+                
+                document.getElementById('user-name').textContent = userName;
+                document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
+                
+                // Update last login
+                await db.collection('vendors').doc(user.uid).update({
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.error('Error loading vendor data:', error);
+                const userName = user.email;
+                document.getElementById('user-name').textContent = userName;
+                document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
+            }
             
             // Load orders
             loadOrders();
@@ -702,7 +910,7 @@
         }
 
         // Filter Orders
-        function filterOrders(status) {
+        function filterOrders(status, event) {
             currentFilter = status;
             
             // Update active tab
@@ -851,8 +1059,6 @@
             const currentCount = snapshot.size;
             if (currentCount > lastOrderCount && lastOrderCount > 0) {
                 showNotification('🔔 New order received!');
-                // Optional: Play sound
-                // new Audio('notification.mp3').play();
             }
             lastOrderCount = currentCount;
         });
