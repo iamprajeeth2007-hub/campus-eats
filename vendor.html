@@ -74,19 +74,39 @@
             font-size: 14px;
         }
 
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 14px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             font-size: 15px;
             transition: all 0.3s ease;
+            background: white;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, .form-group select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border: 2px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 4px;
         }
 
         .login-btn {
@@ -561,17 +581,30 @@
 
             <!-- Register Form (Hidden by default) -->
             <form id="register-form" style="display: none;">
-                <div class="form-group">
-                    <label for="register-name">Vendor Name</label>
-                    <input type="text" id="register-name" required placeholder="Your shop name">
+                <div class="info-box">
+                    <strong>⚠️ Vendor Registration</strong>
+                    Only authorized campus food stores can register. Select your store from the list below.
                 </div>
+                
                 <div class="form-group">
-                    <label for="register-email">Email Address</label>
+                    <label for="store-select">Select Your Store *</label>
+                    <select id="store-select" required>
+                        <option value="">-- Select your store --</option>
+                        <!-- Options loaded from Firebase -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-email">Email Address *</label>
                     <input type="email" id="register-email" required placeholder="vendor@example.com">
                 </div>
                 <div class="form-group">
-                    <label for="register-password">Password</label>
+                    <label for="register-password">Password *</label>
                     <input type="password" id="register-password" required placeholder="Minimum 6 characters">
+                </div>
+                <div class="form-group">
+                    <label for="contact-number">Contact Number (Optional)</label>
+                    <input type="tel" id="contact-number" placeholder="9876543210">
                 </div>
                 <button type="submit" class="login-btn" id="register-btn">Create Account</button>
             </form>
@@ -590,7 +623,7 @@
             <div class="header-left">
                 <div class="header-logo">👨‍🍳</div>
                 <div class="header-title">
-                    <h1>Campus Eats Vendor</h1>
+                    <h1 id="store-name-header">Campus Eats Vendor</h1>
                     <p>Order Management Dashboard</p>
                 </div>
             </div>
@@ -668,6 +701,37 @@
         let currentFilter = 'all';
         let ordersListener = null;
         let isLoginForm = true;
+        let currentVendorStore = null;
+        let availableStores = [];
+
+        // Load available stores from menu collection
+        async function loadStores() {
+            try {
+                const menuSnapshot = await db.collection('menu').get();
+                availableStores = [];
+                const storeSelect = document.getElementById('store-select');
+                
+                // Clear existing options except first
+                storeSelect.innerHTML = '<option value="">-- Select your store --</option>';
+                
+                menuSnapshot.forEach(doc => {
+                    const storeName = doc.id;
+                    availableStores.push(storeName);
+                    const option = document.createElement('option');
+                    option.value = storeName;
+                    option.textContent = storeName;
+                    storeSelect.appendChild(option);
+                });
+                
+                console.log('Loaded stores:', availableStores);
+            } catch (error) {
+                console.error('Error loading stores:', error);
+                showError('Failed to load store list. Please refresh the page.');
+            }
+        }
+
+        // Initialize store list on page load
+        loadStores();
 
         // Toggle between login and register forms
         function toggleForm(e) {
@@ -692,6 +756,8 @@
                 subtitle.textContent = 'Create a new vendor account';
                 toggleText.textContent = 'Already have an account? ';
                 toggleLink.textContent = 'Sign In';
+                // Reload stores when showing registration form
+                loadStores();
             }
             
             hideError();
@@ -746,8 +812,21 @@
             
             try {
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                showNotification('Login successful!');
-                showDashboard(userCredential.user);
+                const user = userCredential.user;
+                
+                // Check if vendor exists in vendors collection
+                const vendorDoc = await db.collection('vendors').doc(user.uid).get();
+                
+                if (!vendorDoc.exists) {
+                    throw new Error('Vendor account not found. Please contact admin.');
+                }
+                
+                const vendorData = vendorDoc.data();
+                currentVendorStore = vendorData.storeName;
+                
+                showNotification(`Welcome back to ${currentVendorStore}!`);
+                showDashboard(user, vendorData);
+                
             } catch (error) {
                 console.error('Login error:', error);
                 let errorMessage = 'Login failed. Please try again.';
@@ -760,6 +839,8 @@
                     errorMessage = 'Invalid email address.';
                 } else if (error.code === 'auth/too-many-requests') {
                     errorMessage = 'Too many failed attempts. Please try again later.';
+                } else if (error.message) {
+                    errorMessage = error.message;
                 }
                 
                 showError(errorMessage);
@@ -774,10 +855,22 @@
             e.preventDefault();
             hideError();
             
-            const name = document.getElementById('register-name').value;
+            const storeName = document.getElementById('store-select').value;
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
+            const contactNumber = document.getElementById('contact-number').value;
             const btn = document.getElementById('register-btn');
+            
+            // Validation
+            if (!storeName) {
+                showError('Please select your store.');
+                return;
+            }
+            
+            if (!availableStores.includes(storeName)) {
+                showError('Invalid store selection. Please choose from the list.');
+                return;
+            }
             
             if (password.length < 6) {
                 showError('Password must be at least 6 characters long.');
@@ -788,33 +881,53 @@
             btn.textContent = 'Creating account...';
             
             try {
+                // Check if this store already has a vendor registered
+                const existingVendor = await db.collection('vendors')
+                    .where('storeName', '==', storeName)
+                    .get();
+                
+                if (!existingVendor.empty) {
+                    throw new Error(`A vendor account for "${storeName}" already exists. Each store can only have one account. Please contact admin if you need access.`);
+                }
+                
+                // Create Firebase Auth user
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
                 // Store vendor info in Firestore
                 await db.collection('vendors').doc(user.uid).set({
                     email: user.email,
-                    name: name,
+                    storeName: storeName,
+                    contactNumber: contactNumber || '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+                    isActive: true
                 });
 
-                showNotification('Account created successfully!');
-                showDashboard(user);
+                currentVendorStore = storeName;
+                showNotification(`Account created for ${storeName}!`);
+                showDashboard(user, { storeName });
                 
             } catch (error) {
                 console.error('Registration error:', error);
                 let errorMessage = 'Registration failed. Please try again.';
                 
                 if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = 'An account with this email already exists.';
+                    errorMessage = 'An account with this email already exists. Please sign in instead.';
                 } else if (error.code === 'auth/invalid-email') {
                     errorMessage = 'Invalid email address.';
                 } else if (error.code === 'auth/weak-password') {
                     errorMessage = 'Password is too weak.';
+                } else if (error.message) {
+                    errorMessage = error.message;
                 }
                 
                 showError(errorMessage);
+                
+                // If error occurred after user creation, delete the user
+                if (auth.currentUser) {
+                    await auth.currentUser.delete().catch(console.error);
+                }
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Create Account';
@@ -828,6 +941,7 @@
                     ordersListener();
                 }
                 await auth.signOut();
+                currentVendorStore = null;
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('dashboard').classList.remove('active');
                 showNotification('Logged out successfully');
@@ -837,41 +951,45 @@
         }
 
         // Show Dashboard
-        async function showDashboard(user) {
+        async function showDashboard(user, vendorData) {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').classList.add('active');
             
-            // Get vendor info from Firestore
+            const storeName = vendorData.storeName || 'Your Store';
+            currentVendorStore = storeName;
+            
+            // Update header with store name
+            document.getElementById('store-name-header').textContent = storeName;
+            document.getElementById('user-name').textContent = storeName;
+            document.getElementById('user-avatar').textContent = storeName.charAt(0).toUpperCase();
+            
+            // Update last login
             try {
-                const vendorDoc = await db.collection('vendors').doc(user.uid).get();
-                const vendorData = vendorDoc.data();
-                const userName = vendorData?.name || user.email;
-                
-                document.getElementById('user-name').textContent = userName;
-                document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
-                
-                // Update last login
                 await db.collection('vendors').doc(user.uid).update({
                     lastLogin: firebase.firestore.FieldValue.serverTimestamp()
                 });
             } catch (error) {
-                console.error('Error loading vendor data:', error);
-                const userName = user.email;
-                document.getElementById('user-name').textContent = userName;
-                document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
+                console.error('Error updating last login:', error);
             }
             
-            // Load orders
+            // Load orders for this store only
             loadOrders();
         }
 
-        // Load Orders with Real-time Updates
+        // Load Orders with Real-time Updates (FILTERED BY STORE)
         function loadOrders() {
             if (ordersListener) {
                 ordersListener();
             }
 
+            if (!currentVendorStore) {
+                console.error('No store selected');
+                return;
+            }
+
+            // CRITICAL: Filter orders by storeName
             ordersListener = db.collection('orders')
+                .where('storeName', '==', currentVendorStore)
                 .orderBy('createdAt', 'desc')
                 .onSnapshot((snapshot) => {
                     const orders = [];
@@ -879,11 +997,18 @@
                         orders.push({ id: doc.id, ...doc.data() });
                     });
                     
+                    console.log(`Loaded ${orders.length} orders for ${currentVendorStore}`);
                     updateStats(orders);
                     renderOrders(orders);
                 }, (error) => {
                     console.error('Error loading orders:', error);
-                    showNotification('Failed to load orders', 'error');
+                    
+                    // If the error is because storeName field doesn't exist in orders
+                    if (error.code === 'failed-precondition') {
+                        showNotification('Database index is being created. Please wait a moment and refresh.', 'error');
+                    } else {
+                        showNotification('Failed to load orders', 'error');
+                    }
                 });
         }
 
@@ -937,7 +1062,7 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">📦</div>
-                        <div class="empty-text">No orders found</div>
+                        <div class="empty-text">No ${currentFilter === 'all' ? '' : currentFilter} orders found</div>
                     </div>
                 `;
                 return;
@@ -1044,23 +1169,42 @@
         }
 
         // Check Auth State
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
-                showDashboard(user);
+                try {
+                    const vendorDoc = await db.collection('vendors').doc(user.uid).get();
+                    if (vendorDoc.exists) {
+                        showDashboard(user, vendorDoc.data());
+                    } else {
+                        // User exists in auth but not in vendors collection
+                        await auth.signOut();
+                        showError('Vendor account not found. Please contact admin.');
+                    }
+                } catch (error) {
+                    console.error('Error loading vendor data:', error);
+                    await auth.signOut();
+                }
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('dashboard').classList.remove('active');
             }
         });
 
-        // Play notification sound when new order arrives
+        // Play notification sound when new order arrives for THIS STORE
         let lastOrderCount = 0;
-        db.collection('orders').where('status', '==', 'pending').onSnapshot(snapshot => {
-            const currentCount = snapshot.size;
-            if (currentCount > lastOrderCount && lastOrderCount > 0) {
-                showNotification('🔔 New order received!');
+        auth.onAuthStateChanged((user) => {
+            if (user && currentVendorStore) {
+                db.collection('orders')
+                    .where('storeName', '==', currentVendorStore)
+                    .where('status', '==', 'pending')
+                    .onSnapshot(snapshot => {
+                        const currentCount = snapshot.size;
+                        if (currentCount > lastOrderCount && lastOrderCount > 0) {
+                            showNotification('🔔 New order received!');
+                        }
+                        lastOrderCount = currentCount;
+                    });
             }
-            lastOrderCount = currentCount;
         });
     </script>
 </body>
