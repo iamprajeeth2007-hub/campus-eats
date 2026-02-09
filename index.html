@@ -887,7 +887,6 @@
             <div class="container">
                 <h2 class="section-title">Restaurants</h2>
                 
-                <!-- Search Bar for Restaurants -->
                 <div class="search-container">
                     <div class="search-box">
                         <span class="search-icon">🔍</span>
@@ -911,7 +910,6 @@
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back</button>
                 <h2 class="section-title" id="restaurant-menu-title">Menu</h2>
                 
-                <!-- Search Bar for Menu Items -->
                 <div class="search-container">
                     <div class="search-box">
                         <span class="search-icon">🔍</span>
@@ -925,7 +923,6 @@
                     </div>
                 </div>
 
-                <!-- Veg/Non-Veg Filter -->
                 <div class="filter-container">
                     <button class="filter-btn active" onclick="filterMenuItems('all', this)">
                         🍽️ All
@@ -971,9 +968,9 @@
             <div class="container">
                 <div class="order-success">
                     <div class="success-icon">✓</div>
-                    <h2>Order Placed Successfully!</h2>
+                    <h2>Order Placed!</h2>
                     <div class="order-number" id="order-number">#12345</div>
-                    <p>Your order has been sent to the vendor</p>
+                    <p>Sent to vendor for preparation</p>
                     <p style="font-size: 14px; color: #666; margin-top: 8px;">Pickup in 15-20 minutes</p>
                     
                     <div class="order-details" id="order-details"></div>
@@ -994,7 +991,7 @@
                     <form onsubmit="updateProfile(event)">
                         <div class="form-group">
                             <label>Full Name</label>
-                            <input type="text" id="profile-name" placeholder="Enter your name" required>
+                            <input type="text" id="profile-name" placeholder="Enter your name">
                         </div>
                         <div class="form-group">
                             <label>SRN</label>
@@ -1182,7 +1179,7 @@
                     const data = doc.data();
                     allRestaurants.push({ 
                         id: doc.id, 
-                        name: data.storeName,
+                        name: data.storeName || doc.id,
                         ...data 
                     });
                 });
@@ -1212,18 +1209,18 @@
             }
 
             container.innerHTML = filtered.map(restaurant => `
-                <div class="restaurant-card" onclick="openRestaurant('${restaurant.id}', '${restaurant.name}')">
+                <div class="restaurant-card" onclick='openRestaurant(${JSON.stringify({id: restaurant.id, name: restaurant.name}).replace(/'/g, "&#39;")})'>
                     <div class="restaurant-image">🍽️</div>
                     <div class="restaurant-info">
                         <div class="restaurant-header">
                             <div class="restaurant-name">${restaurant.name}</div>
                             <div class="restaurant-badge">
-                                ⭐ 4.5
+                                ⭐ ${restaurant.rating || '4.5'}
                             </div>
                         </div>
                         <div class="restaurant-type">Multi-Cuisine</div>
                         <div class="restaurant-meta">
-                            <span>⏱️ 15-20 min</span>
+                            <span>⏱️ ${restaurant.prepTime || '15-20'} min</span>
                             <span>📍 Campus</span>
                         </div>
                     </div>
@@ -1231,16 +1228,19 @@
             `).join('');
         }
 
-        async function openRestaurant(vendorId, storeName) {
-            currentRestaurant = { id: vendorId, name: storeName };
+        async function openRestaurant(restaurant) {
+            currentRestaurant = restaurant;
             currentMenuFilter = 'all';
             currentMenuSearchTerm = '';
             
             document.getElementById('menu-search').value = '';
             
             try {
+                console.log('Loading menu for:', restaurant.name);
+                
+                // CORRECTED PATH: menu/{storeName}/items
                 const snapshot = await db.collection('menu')
-                    .doc(storeName)
+                    .doc(restaurant.name)
                     .collection('items')
                     .get();
                 
@@ -1248,13 +1248,14 @@
                 snapshot.forEach(doc => {
                     currentMenuItems.push({ 
                         id: doc.id, 
-                        vendorId: vendorId,
-                        storeName: storeName,
+                        storeName: restaurant.name,
                         ...doc.data() 
                     });
                 });
 
-                document.getElementById('restaurant-menu-title').textContent = storeName;
+                console.log('Loaded items:', currentMenuItems.length);
+
+                document.getElementById('restaurant-menu-title').textContent = restaurant.name;
                 
                 document.querySelectorAll('#restaurant-menu-screen .filter-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -1424,7 +1425,6 @@
             summary.style.display = 'block';
         }
 
-        // UPDATED: Direct order placement (No Razorpay)
         async function placeOrder() {
             if (cart.length === 0) return;
 
@@ -1434,18 +1434,17 @@
             const orderNumber = 'CE' + Date.now().toString().slice(-8);
 
             try {
-                // CRITICAL: Include storeName in the order
+                // CRITICAL: Save order with storeName for vendor filtering
                 await db.collection('orders').add({
                     orderNumber,
                     srn: currentUser.srn,
                     items: cart,
                     total,
                     status: 'pending',
-                    storeName: currentRestaurant.name,  // IMPORTANT: This links order to vendor
+                    storeName: currentRestaurant.name,  // Links to vendor
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Show success screen
                 document.getElementById('order-number').textContent = `#${orderNumber}`;
                 document.getElementById('order-details').innerHTML = `
                     <div class="summary-row">
@@ -1461,7 +1460,7 @@
                         <span class="order-status-badge status-pending">Pending</span>
                     </div>
                     <div class="summary-row total">
-                        <span>Amount</span>
+                        <span>Total</span>
                         <span>₹${total}</span>
                     </div>
                 `;
@@ -1470,10 +1469,10 @@
                 updateCartCount();
                 navigateTo('order-confirm-screen');
                 
-                showNotification('Order placed successfully!');
+                showNotification('Order placed!');
             } catch (error) {
                 console.error('Error saving order:', error);
-                showNotification('Order placement failed!');
+                showNotification('Order failed!');
             }
         }
 
