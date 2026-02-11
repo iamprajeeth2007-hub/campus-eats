@@ -34,6 +34,7 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             max-width: 400px;
             width: 100%;
+            text-align: center;
         }
 
         .logo-icon {
@@ -52,118 +53,38 @@
             font-size: 28px;
             color: #1a1a1a;
             margin-bottom: 8px;
-            text-align: center;
         }
 
         .login-card p {
             color: #666;
             margin-bottom: 32px;
             font-size: 15px;
-            text-align: center;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-group select {
-            cursor: pointer;
-        }
-
-        .info-box {
-            background: #f0f9ff;
-            border: 2px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #1e40af;
-        }
-
-        .info-box strong {
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .login-btn {
+        .google-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
+            background: white;
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
-            color: white;
+            cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             transition: all 0.3s ease;
-            margin-top: 8px;
         }
 
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        .google-btn:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
 
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .error-message {
-            background: #fee;
-            color: #dc2626;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            border: 1px solid #fecaca;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .toggle-form {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .toggle-form a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .toggle-form a:hover {
-            text-decoration: underline;
+        .google-icon {
+            width: 24px;
+            height: 24px;
         }
 
         /* Dashboard */
@@ -296,7 +217,6 @@
         .filter-tabs {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
         .filter-tab {
@@ -520,6 +440,37 @@
             border-left: 4px solid #ef4444;
         }
 
+        .error-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .error-content {
+            max-width: 500px;
+        }
+
+        .error-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .error-content h2 {
+            font-size: 28px;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+
+        .error-content p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 16px;
@@ -563,59 +514,28 @@
         <div class="login-card">
             <div class="logo-icon">👨‍🍳</div>
             <h1>Vendor Dashboard</h1>
-            <p id="form-subtitle">Sign in to your account</p>
-            
-            <div class="error-message" id="error-message"></div>
+            <p>Sign in with your Gmail account</p>
+            <button class="google-btn" onclick="loginWithGoogle()">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+    </div>
 
-            <!-- Login Form -->
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" required placeholder="vendor@example.com" autocomplete="email">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="Enter your password" autocomplete="current-password">
-                </div>
-                <button type="submit" class="login-btn" id="login-btn">Sign In</button>
-            </form>
-
-            <!-- Register Form (Hidden by default) -->
-            <form id="register-form" style="display: none;">
-                <div class="info-box">
-                    <strong>⚠️ Vendor Registration</strong>
-                    Only authorized campus food stores can register. Select your store from the list below.
-                </div>
-                
-                <div class="form-group">
-                    <label for="store-select">Select Your Store *</label>
-                    <select id="store-select" required>
-                        <option value="">-- Select your store --</option>
-                        <option value="GRUB FOODS">GRUB FOODS</option>
-                        <option value="ROLL ME">ROLL ME</option>
-                        <option value="SIDDI VINAYAKA GARDEN">SIDDI VINAYAKA GARDEN</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="register-email">Email Address *</label>
-                    <input type="email" id="register-email" required placeholder="vendor@example.com" autocomplete="email">
-                </div>
-                <div class="form-group">
-                    <label for="register-password">Password *</label>
-                    <input type="password" id="register-password" required placeholder="Minimum 6 characters" autocomplete="new-password">
-                </div>
-                <div class="form-group">
-                    <label for="contact-number">Contact Number (Optional)</label>
-                    <input type="tel" id="contact-number" placeholder="9876543210" autocomplete="tel">
-                </div>
-                <button type="submit" class="login-btn" id="register-btn">Create Account</button>
-            </form>
-
-            <div class="toggle-form">
-                <span id="toggle-text">Don't have an account? </span>
-                <a href="#" id="toggle-link" onclick="toggleForm(event)">Sign Up</a>
-            </div>
+    <!-- Error Screen -->
+    <div id="error-screen" class="error-screen" style="display: none;">
+        <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <h2>Vendor Not Found</h2>
+            <p id="error-message">Your email is not registered as a vendor. Please contact the admin to register your vendor account.</p>
+            <button class="google-btn" onclick="logout()" style="margin: 0 auto;">
+                Try Different Account
+            </button>
         </div>
     </div>
 
@@ -626,7 +546,7 @@
             <div class="header-left">
                 <div class="header-logo">👨‍🍳</div>
                 <div class="header-title">
-                    <h1 id="store-name-header">Campus Eats Vendor</h1>
+                    <h1 id="vendor-name">Campus Eats Vendor</h1>
                     <p>Order Management Dashboard</p>
                 </div>
             </div>
@@ -668,10 +588,10 @@
                 <div class="section-header">
                     <h2>Orders</h2>
                     <div class="filter-tabs">
-                        <div class="filter-tab active" onclick="filterOrders('all', event)">All</div>
-                        <div class="filter-tab" onclick="filterOrders('pending', event)">Pending</div>
-                        <div class="filter-tab" onclick="filterOrders('preparing', event)">Preparing</div>
-                        <div class="filter-tab" onclick="filterOrders('ready', event)">Ready</div>
+                        <div class="filter-tab active" onclick="filterOrders('all', this)">All</div>
+                        <div class="filter-tab" onclick="filterOrders('pending', this)">Pending</div>
+                        <div class="filter-tab" onclick="filterOrders('preparing', this)">Preparing</div>
+                        <div class="filter-tab" onclick="filterOrders('ready', this)">Ready</div>
                     </div>
                 </div>
                 <div class="orders-list" id="orders-list">
@@ -689,12 +609,12 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBlJSNdxM2xzaHMdbPiFqhHKfhkt5Jgqv0",
-  authDomain: "campus-eats-007.firebaseapp.com",
-  projectId: "campus-eats-007",
-  storageBucket: "campus-eats-007.firebasestorage.app",
-  messagingSenderId: "201751423832",
-  appId: "1:201751423832:web:6d4592dbc1053789fb132d"
+            apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
+            authDomain: "campus-eats-007.firebaseapp.com",
+            projectId: "campus-eats-007",
+            storageBucket: "campus-eats-007.firebasestorage.app",
+            messagingSenderId: "201751423832",
+            appId: "1:201751423832:web:6d4692dbc1053789fb132d"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -703,51 +623,7 @@
 
         let currentFilter = 'all';
         let ordersListener = null;
-        let isLoginForm = true;
-        let currentVendorStore = null;
-
-        const VALID_STORES = ['GRUB FOODS', 'ROLL ME', 'SIDDI VINAYAKA GARDEN'];
-
-        // Toggle between login and register forms
-        function toggleForm(e) {
-            e.preventDefault();
-            isLoginForm = !isLoginForm;
-            
-            const loginForm = document.getElementById('login-form');
-            const registerForm = document.getElementById('register-form');
-            const subtitle = document.getElementById('form-subtitle');
-            const toggleText = document.getElementById('toggle-text');
-            const toggleLink = document.getElementById('toggle-link');
-            
-            if (isLoginForm) {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-                subtitle.textContent = 'Sign in to your account';
-                toggleText.textContent = "Don't have an account? ";
-                toggleLink.textContent = 'Sign Up';
-            } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-                subtitle.textContent = 'Create a new vendor account';
-                toggleText.textContent = 'Already have an account? ';
-                toggleLink.textContent = 'Sign In';
-            }
-            
-            hideError();
-        }
-
-        // Show error message
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-        }
-
-        // Hide error message
-        function hideError() {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.classList.remove('show');
-        }
+        let currentVendor = null;
 
         // Show notification
         function showNotification(message, type = 'success') {
@@ -771,146 +647,62 @@
             setTimeout(() => notification.classList.remove('show'), 4000);
         }
 
-        // Login Form Submit
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideError();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const btn = document.getElementById('login-btn');
-            
-            btn.disabled = true;
-            btn.textContent = 'Signing in...';
+        // Google Login
+        async function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
             
             try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
                 
-                // Check if vendor exists in vendors collection
-                const vendorDoc = await db.collection('vendors').doc(user.uid).get();
+                // CRITICAL FIX: Find vendor by email in 'vendor' collection
+                const vendorsSnapshot = await db.collection('vendor').get();
+                let matchedVendor = null;
                 
-                if (!vendorDoc.exists) {
-                    throw new Error('Vendor account not found. Please contact admin.');
+                vendorsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Match by email or contactNumber
+                    if (data.email === user.email || data.contactNumber === user.phoneNumber) {
+                        matchedVendor = { id: doc.id, ...data };
+                    }
+                });
+
+                if (!matchedVendor) {
+                    // Check if email contains vendor name (fallback)
+                    const emailName = user.email.split('@')[0].toLowerCase();
+                    vendorsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const vendorName = (data.name || doc.id).toLowerCase().replace(/\s+/g, '');
+                        if (emailName.includes(vendorName) || vendorName.includes(emailName)) {
+                            matchedVendor = { id: doc.id, ...data };
+                        }
+                    });
                 }
-                
-                const vendorData = vendorDoc.data();
-                
-                if (!VALID_STORES.includes(vendorData.storeName)) {
-                    throw new Error('Invalid store. Please contact admin.');
+
+                if (!matchedVendor) {
+                    // No vendor found
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('error-screen').style.display = 'flex';
+                    document.getElementById('error-message').textContent = 
+                        `No vendor account found for ${user.email}. Please contact admin to register your vendor.`;
+                    await auth.signOut();
+                    return;
                 }
-                
-                currentVendorStore = vendorData.storeName;
-                
-                showNotification(`Welcome back to ${currentVendorStore}!`);
-                showDashboard(user, vendorData);
+
+                // Update last login in vendor collection
+                await db.collection('vendor').doc(matchedVendor.id).update({
+                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                currentVendor = matchedVendor;
+                showNotification('Login successful!');
+                showDashboard(user);
                 
             } catch (error) {
                 console.error('Login error:', error);
-                let errorMessage = 'Login failed. Please try again.';
-                
-                if (error.code === 'auth/user-not-found') {
-                    errorMessage = 'No account found with this email.';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorMessage = 'Incorrect password.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Invalid email address.';
-                } else if (error.code === 'auth/too-many-requests') {
-                    errorMessage = 'Too many failed attempts. Please try again later.';
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-                
-                showError(errorMessage);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
+                showNotification('Login failed: ' + error.message, 'error');
             }
-        });
-
-        // Register Form Submit
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideError();
-            
-            const storeName = document.getElementById('store-select').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const contactNumber = document.getElementById('contact-number').value;
-            const btn = document.getElementById('register-btn');
-            
-            // Validation
-            if (!storeName) {
-                showError('Please select your store.');
-                return;
-            }
-            
-            if (!VALID_STORES.includes(storeName)) {
-                showError('Invalid store selection. Please choose from the list.');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showError('Password must be at least 6 characters long.');
-                return;
-            }
-            
-            btn.disabled = true;
-            btn.textContent = 'Creating account...';
-            
-            try {
-                // Check if this store already has a vendor registered
-                const existingVendor = await db.collection('vendors')
-                    .where('storeName', '==', storeName)
-                    .get();
-                
-                if (!existingVendor.empty) {
-                    throw new Error(`A vendor account for "${storeName}" already exists. Each store can only have one account. Please contact admin if you need access.`);
-                }
-                
-                // Create Firebase Auth user
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // Store vendor info in Firestore
-                await db.collection('vendors').doc(user.uid).set({
-                    email: user.email,
-                    storeName: storeName,
-                    contactNumber: contactNumber || '',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-                    isActive: true
-                });
-
-                currentVendorStore = storeName;
-                showNotification(`Account created for ${storeName}!`);
-                showDashboard(user, { storeName });
-                
-            } catch (error) {
-                console.error('Registration error:', error);
-                let errorMessage = 'Registration failed. Please try again.';
-                
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = 'An account with this email already exists. Please sign in instead.';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = 'Invalid email address.';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = 'Password is too weak.';
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-                
-                showError(errorMessage);
-                
-                // If error occurred after user creation, delete the user
-                if (auth.currentUser) {
-                    await auth.currentUser.delete().catch(console.error);
-                }
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
-            }
-        });
+        }
 
         // Logout
         async function logout() {
@@ -919,8 +711,9 @@
                     ordersListener();
                 }
                 await auth.signOut();
-                currentVendorStore = null;
+                currentVendor = null;
                 document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('error-screen').style.display = 'none';
                 document.getElementById('dashboard').classList.remove('active');
                 showNotification('Logged out successfully');
             } catch (error) {
@@ -929,45 +722,30 @@
         }
 
         // Show Dashboard
-        async function showDashboard(user, vendorData) {
+        function showDashboard(user) {
             document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('error-screen').style.display = 'none';
             document.getElementById('dashboard').classList.add('active');
             
-            const storeName = vendorData.storeName || 'Your Store';
-            currentVendorStore = storeName;
+            // Update user info
+            const userName = user.displayName || user.email;
+            document.getElementById('user-name').textContent = userName;
+            document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
+            document.getElementById('vendor-name').textContent = currentVendor.name || 'Vendor Dashboard';
             
-            // Update header with store name
-            document.getElementById('store-name-header').textContent = storeName;
-            document.getElementById('user-name').textContent = storeName;
-            document.getElementById('user-avatar').textContent = storeName.charAt(0).toUpperCase();
-            
-            // Update last login
-            try {
-                await db.collection('vendors').doc(user.uid).update({
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } catch (error) {
-                console.error('Error updating last login:', error);
-            }
-            
-            // Load orders for this store only
+            // Load orders
             loadOrders();
         }
 
-        // Load Orders with Real-time Updates (FILTERED BY STORE)
+        // Load Orders with Real-time Updates
         function loadOrders() {
             if (ordersListener) {
                 ordersListener();
             }
 
-            if (!currentVendorStore) {
-                console.error('No store selected');
-                return;
-            }
-
-            // CRITICAL: Filter orders by storeName
+            // CRITICAL FIX: Filter by vendor name from 'vendor' collection
             ordersListener = db.collection('orders')
-                .where('storeName', '==', currentVendorStore)
+                .where('storeName', '==', currentVendor.name)
                 .orderBy('createdAt', 'desc')
                 .onSnapshot((snapshot) => {
                     const orders = [];
@@ -975,43 +753,11 @@
                         orders.push({ id: doc.id, ...doc.data() });
                     });
                     
-                    console.log(`Loaded ${orders.length} orders for ${currentVendorStore}`);
                     updateStats(orders);
                     renderOrders(orders);
                 }, (error) => {
                     console.error('Error loading orders:', error);
-                    
-                    // If the error is because storeName field doesn't exist in orders
-                    if (error.code === 'failed-precondition') {
-                        showNotification('Creating database index. Please wait 2 minutes and refresh the page.', 'error');
-                        
-                        // Try to load without the index for now
-                        loadOrdersWithoutIndex();
-                    } else {
-                        showNotification('Failed to load orders: ' + error.message, 'error');
-                    }
-                });
-        }
-
-        // Fallback: Load orders without index (temporary solution)
-        function loadOrdersWithoutIndex() {
-            console.log('Loading orders without index...');
-            
-            db.collection('orders')
-                .orderBy('createdAt', 'desc')
-                .onSnapshot((snapshot) => {
-                    const allOrders = [];
-                    snapshot.forEach(doc => {
-                        const orderData = doc.data();
-                        // Client-side filtering
-                        if (orderData.storeName === currentVendorStore) {
-                            allOrders.push({ id: doc.id, ...orderData });
-                        }
-                    });
-                    
-                    console.log(`Loaded ${allOrders.length} orders (client-filtered) for ${currentVendorStore}`);
-                    updateStats(allOrders);
-                    renderOrders(allOrders);
+                    showNotification('Failed to load orders', 'error');
                 });
         }
 
@@ -1029,7 +775,7 @@
                     const orderDate = o.createdAt.toDate().setHours(0, 0, 0, 0);
                     return orderDate === today;
                 })
-                .reduce((sum, o) => sum + (o.total || 0), 0);
+                .reduce((sum, o) => sum + o.total, 0);
 
             document.getElementById('pending-count').textContent = pending;
             document.getElementById('preparing-count').textContent = preparing;
@@ -1038,16 +784,16 @@
         }
 
         // Filter Orders
-        function filterOrders(status, event) {
+        function filterOrders(status, button) {
             currentFilter = status;
             
             // Update active tab
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            event.target.classList.add('active');
+            button.classList.add('active');
             
-            // Re-render with current orders
+            // Reload with filter will happen automatically from listener
             loadOrders();
         }
 
@@ -1065,7 +811,7 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">📦</div>
-                        <div class="empty-text">No ${currentFilter === 'all' ? '' : currentFilter} orders found</div>
+                        <div class="empty-text">No orders found</div>
                     </div>
                 `;
                 return;
@@ -1078,7 +824,7 @@
                     <div class="order-card">
                         <div class="order-header">
                             <div>
-                                <div class="order-id">Order #${order.id.slice(-6)}</div>
+                                <div class="order-id">Order #${order.orderNumber || order.id.slice(-6)}</div>
                                 <div class="order-time">${timeStr}</div>
                             </div>
                             <span class="status-badge status-${order.status}">
@@ -1087,11 +833,11 @@
                         </div>
                         
                         <div class="student-info">
-                            Student SRN: <span class="student-srn">${order.srn || 'N/A'}</span>
+                            Student SRN: <span class="student-srn">${order.srn}</span>
                         </div>
                         
                         <div class="order-items">
-                            ${(order.items || []).map(item => `
+                            ${order.items.map(item => `
                                 <div class="order-item">
                                     <span class="item-name">${item.name}</span>
                                     <span class="item-qty">x${item.quantity} - ₹${item.price * item.quantity}</span>
@@ -1100,7 +846,7 @@
                         </div>
                         
                         <div class="order-footer">
-                            <div class="order-total">Total: ₹${order.total || 0}</div>
+                            <div class="order-total">Total: ₹${order.total}</div>
                             <div class="order-actions">
                                 ${getActionButtons(order.id, order.status)}
                             </div>
@@ -1173,51 +919,35 @@
 
         // Check Auth State
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                try {
-                    const vendorDoc = await db.collection('vendors').doc(user.uid).get();
-                    if (vendorDoc.exists) {
-                        const vendorData = vendorDoc.data();
-                        if (VALID_STORES.includes(vendorData.storeName)) {
-                            showDashboard(user, vendorData);
-                        } else {
-                            await auth.signOut();
-                            showError('Invalid store. Please contact admin.');
-                        }
-                    } else {
-                        // User exists in auth but not in vendors collection
-                        await auth.signOut();
-                        showError('Vendor account not found. Please contact admin.');
-                    }
-                } catch (error) {
-                    console.error('Error loading vendor data:', error);
-                    await auth.signOut();
-                }
+            if (user && currentVendor) {
+                showDashboard(user);
+            } else if (user && !currentVendor) {
+                // User logged in but vendor not matched yet
+                // This will be handled by loginWithGoogle
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('dashboard').classList.remove('active');
+                document.getElementById('error-screen').style.display = 'none';
             }
         });
 
-        // Play notification sound when new order arrives for THIS STORE
+        // Play notification sound when new order arrives
         let lastOrderCount = 0;
-        auth.onAuthStateChanged((user) => {
-            if (user && currentVendorStore) {
+        setInterval(() => {
+            if (currentVendor) {
                 db.collection('orders')
-                    .where('storeName', '==', currentVendorStore)
+                    .where('storeName', '==', currentVendor.name)
                     .where('status', '==', 'pending')
-                    .onSnapshot(snapshot => {
+                    .get()
+                    .then(snapshot => {
                         const currentCount = snapshot.size;
                         if (currentCount > lastOrderCount && lastOrderCount > 0) {
                             showNotification('🔔 New order received!');
                         }
                         lastOrderCount = currentCount;
-                    }, (error) => {
-                        // Silent fail for notification listener
-                        console.log('Notification listener error (expected during setup):', error.code);
                     });
             }
-        });
+        }, 5000); // Check every 5 seconds
     </script>
 </body>
 </html>
