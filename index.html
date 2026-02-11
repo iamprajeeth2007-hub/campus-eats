@@ -1235,7 +1235,7 @@
         async function loadRestaurants() {
             try {
                 // CRITICAL FIX: Use 'vendor' collection, not 'vendors'
-                const snapshot = await db.collection('vendor').get();
+                const snapshot = await db.collection('vendors').get();
                 allRestaurants = [];
                 
                 snapshot.forEach(doc => {
