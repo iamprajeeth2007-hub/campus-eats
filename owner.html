@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Eats - Owner Dashboard</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            color: #e2e8f0;
+        }
+
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .login-card {
+            background: #1e293b;
+            border-radius: 24px;
+            padding: 48px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid #334155;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 40px;
+        }
+
+        .login-card h1 {
+            font-size: 28px;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .login-card p {
+            color: #94a3b8;
+            margin-bottom: 32px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            background: #0f172a;
+            color: #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .header {
+            background: #1e293b;
+            padding: 20px 32px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            font-size: 32px;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            color: #f1f5f9;
+        }
+
+        .header-title p {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        .content {
+            padding: 32px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            border-color: #475569;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon.primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .stat-icon.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .stat-icon.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .stat-icon.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        .chart-section {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+            border: 1px solid #334155;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .refresh-btn {
+            padding: 8px 16px;
+            background: #334155;
+            color: #e2e8f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #475569;
+        }
+
+        .stalls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .stall-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .stall-card:hover {
+            border-color: #475569;
+            transform: translateY(-2px);
+        }
+
+        .stall-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stall-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .stall-status {
+            padding: 4px 12px;
+            background: #10b981;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stall-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stall-stat {
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .stall-stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .stall-stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        .breakdown-section {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #334155;
+        }
+
+        .breakdown-row:last-child {
+            border-bottom: none;
+            margin-top: 12px;
+            padding-top: 16px;
+            border-top: 2px solid #334155;
+        }
+
+        .breakdown-label {
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        .breakdown-value {
+            color: #f1f5f9;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .breakdown-value.profit {
+            color: #10b981;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stalls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+        <div class="login-card">
+            <div class="logo-icon">👨‍💼</div>
+            <h1>Owner Dashboard</h1>
+            <p>Admin Access Only</p>
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter owner password" required>
+                </div>
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="header-logo">📊</div>
+                <div class="header-title">
+                    <h1>Campus Eats Analytics</h1>
+                    <p>Owner Dashboard</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Main Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon primary">📦</div>
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-value" id="total-orders">0</div>
+                    <div class="stat-change" id="orders-change">Loading...</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon success">💰</div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" id="total-revenue">₹0</div>
+                    <div class="stat-change" id="revenue-change">Loading...</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon warning">💎</div>
+                    <div class="stat-label">Your Profit</div>
+                    <div class="stat-value" id="net-profit">₹0</div>
+                    <div class="stat-change" id="profit-change">Loading...</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">👥</div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="total-users">0</div>
+                    <div class="stat-change" id="users-change">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Revenue Breakdown -->
+            <div class="chart-section">
+                <div class="section-header">
+                    <h2 class="section-title">Revenue Breakdown</h2>
+                    <button class="refresh-btn" onclick="loadDashboard()">🔄 Refresh</button>
+                </div>
+                <div class="breakdown-section">
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Gross Revenue</span>
+                        <span class="breakdown-value" id="breakdown-gross">₹0</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Platform Commission (10%)</span>
+                        <span class="breakdown-value" id="breakdown-commission">₹0</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Razorpay Fees (2.36%)</span>
+                        <span class="breakdown-value" id="breakdown-razorpay">₹0</span>
+                    </div>
+                    <div class="breakdown-row">
+                        <span class="breakdown-label">Net Profit</span>
+                        <span class="breakdown-value profit" id="breakdown-profit">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stalls Performance -->
+            <div class="chart-section">
+                <div class="section-header">
+                    <h2 class="section-title">Stalls Performance</h2>
+                </div>
+                <div class="stalls-grid" id="stalls-grid"></div>
+            </div>
+
+            <!-- Order Status -->
+            <div class="chart-section">
+                <div class="section-header">
+                    <h2 class="section-title">Order Status Breakdown</h2>
+                </div>
+                <div class="stalls-grid">
+                    <div class="stall-card">
+                        <div class="stall-header">
+                            <div class="stall-name">⏳ Pending</div>
+                        </div>
+                        <div class="stall-stat-value" id="status-pending">0</div>
+                    </div>
+                    <div class="stall-card">
+                        <div class="stall-header">
+                            <div class="stall-name">👨‍🍳 Preparing</div>
+                        </div>
+                        <div class="stall-stat-value" id="status-preparing">0</div>
+                    </div>
+                    <div class="stall-card">
+                        <div class="stall-header">
+                            <div class="stall-name">✅ Ready</div>
+                        </div>
+                        <div class="stall-stat-value" id="status-ready">0</div>
+                    </div>
+                    <div class="stall-card">
+                        <div class="stall-header">
+                            <div class="stall-name">🎉 Completed</div>
+                        </div>
+                        <div class="stall-stat-value" id="status-completed">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ==========================================
+        // 🔐 CHANGE THIS PASSWORD TO YOUR OWN!
+        // ==========================================
+        const OWNER_PASSWORD = "campus2025";  // ← CHANGE THIS!
+        
+        // ==========================================
+        // 💰 CHANGE COMMISSION RATE HERE
+        // ==========================================
+        const COMMISSION_RATE = 0.10;  // 10% commission
+        const RAZORPAY_FEE_RATE = 0.0236;  // 2.36% (2% + GST)
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
+            authDomain: "campus-eats-007.firebaseapp.com",
+            projectId: "campus-eats-007",
+            storageBucket: "campus-eats-007.firebasestorage.app",
+            messagingSenderId: "201751423832",
+            appId: "1:201751423832:web:6d4692dbc1053789fb132d"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Login Function
+        function login(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            if (password === OWNER_PASSWORD) {
+                localStorage.setItem('ownerLoggedIn', 'true');
+                showDashboard();
+            } else {
+                alert('Incorrect password!');
+            }
+        }
+
+        // Logout Function
+        function logout() {
+            localStorage.removeItem('ownerLoggedIn');
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('dashboard').classList.remove('active');
+        }
+
+        // Show Dashboard
+        function showDashboard() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            loadDashboard();
+        }
+
+        // Load Dashboard Data
+        async function loadDashboard() {
+            try {
+                // Get all orders
+                const ordersSnapshot = await db.collection('orders').get();
+                const orders = [];
+                ordersSnapshot.forEach(doc => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Get all students
+                const studentsSnapshot = await db.collection('students').get();
+                const totalUsers = studentsSnapshot.size;
+
+                // Calculate stats
+                const totalOrders = orders.length;
+                const completedOrders = orders.filter(o => o.status === 'completed');
+                const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+                
+                // Calculate commission and fees
+                const commission = totalRevenue * COMMISSION_RATE;
+                const razorpayFees = totalRevenue * RAZORPAY_FEE_RATE;
+                const netProfit = commission - razorpayFees;
+
+                // Update main stats
+                document.getElementById('total-orders').textContent = totalOrders;
+                document.getElementById('total-revenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+                document.getElementById('net-profit').textContent = `₹${Math.round(netProfit).toLocaleString()}`;
+                document.getElementById('total-users').textContent = totalUsers;
+
+                // Update changes (you can calculate trends here)
+                document.getElementById('orders-change').textContent = `${completedOrders.length} completed`;
+                document.getElementById('revenue-change').textContent = `From ${totalOrders} orders`;
+                document.getElementById('profit-change').textContent = `${COMMISSION_RATE * 100}% commission`;
+                document.getElementById('users-change').textContent = 'Registered students';
+
+                // Update breakdown
+                document.getElementById('breakdown-gross').textContent = `₹${totalRevenue.toLocaleString()}`;
+                document.getElementById('breakdown-commission').textContent = `₹${Math.round(commission).toLocaleString()}`;
+                document.getElementById('breakdown-razorpay').textContent = `₹${Math.round(razorpayFees).toLocaleString()}`;
+                document.getElementById('breakdown-profit').textContent = `₹${Math.round(netProfit).toLocaleString()}`;
+
+                // Calculate stall stats
+                const stallStats = {};
+                orders.forEach(order => {
+                    const stall = order.storeName || 'Unknown';
+                    if (!stallStats[stall]) {
+                        stallStats[stall] = {
+                            orders: 0,
+                            revenue: 0
+                        };
+                    }
+                    stallStats[stall].orders++;
+                    stallStats[stall].revenue += order.total || 0;
+                });
+
+                // Display stall stats
+                const stallsGrid = document.getElementById('stalls-grid');
+                if (Object.keys(stallStats).length === 0) {
+                    stallsGrid.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><p>No stall data yet</p></div>';
+                } else {
+                    stallsGrid.innerHTML = Object.entries(stallStats).map(([stall, stats]) => `
+                        <div class="stall-card">
+                            <div class="stall-header">
+                                <div class="stall-name">${stall}</div>
+                                <div class="stall-status">Active</div>
+                            </div>
+                            <div class="stall-stats">
+                                <div class="stall-stat">
+                                    <div class="stall-stat-label">Orders</div>
+                                    <div class="stall-stat-value">${stats.orders}</div>
+                                </div>
+                                <div class="stall-stat">
+                                    <div class="stall-stat-label">Revenue</div>
+                                    <div class="stall-stat-value">₹${stats.revenue.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Update order status counts
+                const statusCounts = {
+                    pending: orders.filter(o => o.status === 'pending').length,
+                    preparing: orders.filter(o => o.status === 'preparing').length,
+                    ready: orders.filter(o => o.status === 'ready').length,
+                    completed: orders.filter(o => o.status === 'completed').length
+                };
+
+                document.getElementById('status-pending').textContent = statusCounts.pending;
+                document.getElementById('status-preparing').textContent = statusCounts.preparing;
+                document.getElementById('status-ready').textContent = statusCounts.ready;
+                document.getElementById('status-completed').textContent = statusCounts.completed;
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                alert('Failed to load dashboard data');
+            }
+        }
+
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('ownerLoggedIn') === 'true') {
+                showDashboard();
+            }
+        });
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (document.getElementById('dashboard').classList.contains('active')) {
+                loadDashboard();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
