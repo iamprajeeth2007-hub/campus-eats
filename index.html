@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Eats - Order Food from Campus Vendors</title>
+    <title>Campus Eats - Complete Prototype</title>
     
     <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
     
@@ -17,105 +17,42 @@
         }
 
         :root {
-            --primary: #8B4513;
-            --primary-light: #A0522D;
-            --primary-dark: #654321;
-            --secondary: #D2691E;
-            --beige: #F5F5DC;
-            --beige-dark: #E8E4D0;
-            --cream: #FFF8DC;
-            --brown-text: #4A3C2F;
-            --brown-light: #6B5A4D;
-            --success: #2D7A3E;
-            --gradient-1: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
-            --gradient-2: linear-gradient(135deg, #F5F5DC 0%, #E8E4D0 100%);
-            --glass: rgba(245, 245, 220, 0.7);
-            --shadow: 0 8px 32px rgba(139, 69, 19, 0.15);
-            --shadow-lg: 0 20px 60px rgba(139, 69, 19, 0.25);
+            /* ORANGE THEME */
+            --primary: #FF6B35;
+            --primary-light: #FF8C42;
+            --primary-dark: #D94F30;
+            --secondary: #FFA726;
+            --orange-light: #FFF4E6;
+            --orange-pale: #FFF8F0;
+            --text-dark: #2D2D2D;
+            --text-light: #666666;
+            --success: #4CAF50;
+            --danger: #F44336;
+            --gradient: linear-gradient(135deg, #FF6B35 0%, #FFA726 100%);
+            --shadow: 0 8px 32px rgba(255, 107, 53, 0.15);
+            --shadow-lg: 0 20px 60px rgba(255, 107, 53, 0.25);
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #FFF8DC 0%, #F5F5DC 50%, #E8E4D0 100%);
+            background: linear-gradient(135deg, #FFF8F0 0%, #FFF4E6 100%);
             background-attachment: fixed;
             min-height: 100vh;
-            color: var(--brown-text);
-            overflow-x: hidden;
+            color: var(--text-dark);
         }
 
         /* ================================
-           FLOATING BACKGROUND ELEMENTS
-        ================================ */
-        .bg-decoration {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .float-circle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.1;
-            animation: float 20s ease-in-out infinite;
-        }
-
-        .float-circle:nth-child(1) {
-            width: 300px;
-            height: 300px;
-            background: var(--gradient-1);
-            top: -150px;
-            left: -150px;
-            animation-delay: 0s;
-        }
-
-        .float-circle:nth-child(2) {
-            width: 400px;
-            height: 400px;
-            background: var(--gradient-1);
-            bottom: -200px;
-            right: -200px;
-            animation-delay: 5s;
-        }
-
-        .float-circle:nth-child(3) {
-            width: 250px;
-            height: 250px;
-            background: var(--secondary);
-            top: 50%;
-            right: 10%;
-            animation-delay: 10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-
-        /* ================================
-           NAVIGATION BAR
+           NAVIGATION
         ================================ */
         .navbar {
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: var(--glass);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+            border-bottom: 1px solid rgba(255, 107, 53, 0.1);
             padding: 16px 32px;
-            box-shadow: 0 4px 20px rgba(139, 69, 19, 0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .navbar.scrolled {
-            background: rgba(245, 245, 220, 0.95);
-            box-shadow: 0 8px 32px rgba(139, 69, 19, 0.2);
+            box-shadow: 0 4px 20px rgba(255, 107, 53, 0.1);
         }
 
         .nav-content {
@@ -129,57 +66,66 @@
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             cursor: pointer;
-        }
-
-        .logo-img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
         }
 
         .logo-text {
             font-size: 28px;
             font-weight: 700;
-            background: var(--gradient-1);
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .nav-actions {
             display: flex;
-            align-items: center;
-            gap: 16px;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--orange-light);
         }
 
         .cart-button {
             position: relative;
-            background: var(--gradient-1);
+            background: var(--gradient);
             color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: var(--shadow);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .cart-button:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: var(--shadow-lg);
         }
 
         .cart-badge {
             position: absolute;
             top: -8px;
             right: -8px;
-            background: #DC2626;
+            background: var(--danger);
             color: white;
             width: 24px;
             height: 24px;
@@ -189,131 +135,24 @@
             justify-content: center;
             font-size: 12px;
             font-weight: 700;
-            border: 2px solid var(--cream);
-            animation: bounce 0.5s ease;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+            border: 2px solid white;
         }
 
         /* ================================
-           HERO SECTION
-        ================================ */
-        .hero {
-            position: relative;
-            padding: 80px 32px 60px;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .hero-title {
-            font-size: clamp(3rem, 8vw, 6rem);
-            font-weight: 800;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 20px;
-            line-height: 1.1;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        .hero-subtitle {
-            font-size: clamp(1.2rem, 3vw, 1.8rem);
-            color: var(--brown-light);
-            margin-bottom: 40px;
-            font-weight: 400;
-            animation: fadeInUp 0.8s ease 0.2s backwards;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hero-search {
-            position: relative;
-            max-width: 600px;
-            margin: 0 auto;
-            animation: fadeInUp 0.8s ease 0.4s backwards;
-        }
-
-        .search-box {
-            position: relative;
-            background: white;
-            border-radius: 60px;
-            padding: 8px;
-            box-shadow: 0 20px 60px rgba(139, 69, 19, 0.15);
-            border: 2px solid transparent;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .search-box:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 20px 60px rgba(139, 69, 19, 0.25), 0 0 0 4px rgba(139, 69, 19, 0.1);
-        }
-
-        .search-input {
-            width: 100%;
-            border: none;
-            outline: none;
-            padding: 16px 24px;
-            font-size: 18px;
-            background: transparent;
-            color: var(--brown-text);
-        }
-
-        .search-input::placeholder {
-            color: var(--brown-light);
-        }
-
-        .search-icon {
-            position: absolute;
-            right: 24px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 24px;
-            color: var(--brown-light);
-        }
-
-        /* ================================
-           SCREEN MANAGEMENT
+           SCREENS
         ================================ */
         .screen {
             display: none;
-            animation: fadeIn 0.5s ease;
         }
 
         .screen.active {
             display: block;
+            animation: fadeIn 0.3s ease;
         }
 
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 32px;
-            position: relative;
-            z-index: 1;
         }
 
         /* ================================
@@ -328,26 +167,12 @@
         }
 
         .auth-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
+            background: white;
             border-radius: 32px;
             padding: 48px;
             max-width: 480px;
             width: 100%;
             box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(139, 69, 19, 0.1);
-            animation: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
         }
 
         .auth-logo {
@@ -355,245 +180,191 @@
             margin-bottom: 32px;
         }
 
-        .auth-logo img {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 16px;
-        }
-
         .auth-logo h1 {
-            font-size: 32px;
-            font-weight: 700;
-            background: var(--gradient-1);
+            font-size: 36px;
+            font-weight: 800;
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
         }
 
         .auth-logo p {
-            color: var(--brown-light);
+            color: var(--text-light);
             font-size: 16px;
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
             font-weight: 600;
-            color: var(--brown-text);
+            color: var(--text-dark);
             margin-bottom: 8px;
             font-size: 14px;
         }
 
         input[type="text"],
-        input[type="password"] {
+        input[type="password"],
+        textarea {
             width: 100%;
-            padding: 16px 20px;
-            border: 2px solid var(--beige-dark);
-            border-radius: 16px;
+            padding: 14px 18px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
             font-size: 16px;
             font-family: 'Poppins', sans-serif;
             transition: all 0.3s ease;
-            background: var(--cream);
         }
 
-        input:focus {
+        input:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(139, 69, 19, 0.1);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .btn-primary {
-            background: var(--gradient-1);
-            color: white;
-            box-shadow: var(--shadow);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-secondary {
-            background: var(--beige);
-            color: var(--brown-text);
-            margin-top: 12px;
-        }
-
-        .btn-secondary:hover {
-            background: var(--beige-dark);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
         }
 
         /* ================================
-           RESTAURANT CARDS (HORIZONTAL SCROLL)
+           CONTAINER
         ================================ */
-        .section-header {
-            margin-bottom: 32px;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 32px;
         }
 
-        .section-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--brown-text);
-            margin-bottom: 8px;
+        /* ================================
+           SEARCH & FILTERS
+        ================================ */
+        .search-box {
+            position: relative;
+            margin-bottom: 24px;
         }
 
-        .section-subtitle {
-            font-size: 18px;
-            color: var(--brown-light);
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: 2px solid #E0E0E0;
+            border-radius: 50px;
+            font-size: 16px;
+            background: white;
         }
 
-        .restaurants-scroll {
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+        }
+
+        .filter-buttons {
             display: flex;
-            gap: 24px;
-            overflow-x: auto;
-            padding: 20px 0;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
         }
 
-        .restaurants-scroll::-webkit-scrollbar {
-            display: none;
+        .filter-btn {
+            padding: 10px 24px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+        }
+
+        .filter-btn.active {
+            background: var(--gradient);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .filter-btn:hover:not(.active) {
+            border-color: var(--primary);
+            background: var(--orange-light);
+        }
+
+        /* ================================
+           RESTAURANT CARDS
+        ================================ */
+        .restaurants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
         }
 
         .restaurant-card {
-            min-width: 340px;
             background: white;
-            border-radius: 24px;
+            border-radius: 20px;
             overflow: hidden;
             box-shadow: var(--shadow);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             border: 2px solid transparent;
         }
 
         .restaurant-card:hover {
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-8px);
             box-shadow: var(--shadow-lg);
             border-color: var(--primary);
         }
 
         .restaurant-image {
             width: 100%;
-            height: 200px;
-            background: var(--gradient-1);
+            height: 180px;
+            background: var(--gradient);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 80px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .restaurant-image::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+            font-size: 60px;
         }
 
         .restaurant-info {
-            padding: 24px;
-        }
-
-        .restaurant-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 12px;
+            padding: 20px;
         }
 
         .restaurant-name {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            color: var(--brown-text);
-        }
-
-        .restaurant-badge {
-            background: var(--success);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
         }
 
         .restaurant-meta {
             display: flex;
             gap: 16px;
-            color: var(--brown-light);
+            color: var(--text-light);
             font-size: 14px;
-            margin-top: 12px;
+        }
+
+        .matching-dishes {
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 8px;
+            font-size: 13px;
         }
 
         /* ================================
-           MENU ITEMS (GRID)
+           MENU ITEMS
         ================================ */
-        .filter-tabs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-
-        .filter-tab {
-            padding: 12px 24px;
-            border: 2px solid var(--beige-dark);
-            background: white;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--brown-text);
-        }
-
-        .filter-tab.active {
-            background: var(--gradient-1);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .filter-tab:hover:not(.active) {
-            border-color: var(--primary);
-            background: var(--beige);
-        }
-
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
+            gap: 20px;
         }
 
         .menu-card {
             background: white;
-            border-radius: 20px;
-            padding: 24px;
+            border-radius: 16px;
+            padding: 20px;
             box-shadow: var(--shadow);
             border: 2px solid transparent;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
+            transition: all 0.3s ease;
         }
 
         .menu-card:hover {
@@ -602,114 +373,309 @@
             border-color: var(--primary);
         }
 
-        .menu-info {
-            flex: 1;
-        }
-
         .menu-header {
             display: flex;
-            align-items: start;
-            gap: 8px;
+            align-items: center;
+            gap: 10px;
             margin-bottom: 8px;
         }
 
         .veg-badge {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border: 2px solid var(--success);
-            border-radius: 4px;
+            border-radius: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
         }
 
         .veg-badge.non-veg {
-            border-color: #DC2626;
+            border-color: var(--danger);
         }
 
         .veg-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background: var(--success);
             border-radius: 50%;
         }
 
         .veg-dot.non-veg {
-            background: #DC2626;
+            background: var(--danger);
         }
 
         .menu-name {
             font-size: 18px;
             font-weight: 600;
-            color: var(--brown-text);
+            color: var(--text-dark);
+            flex: 1;
         }
 
         .menu-price {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--primary);
-            margin-top: 8px;
+            margin: 8px 0;
         }
 
-        .menu-actions {
+        /* RATINGS */
+        .ratings-section {
+            margin: 12px 0;
+            padding-top: 12px;
+            border-top: 1px solid #F0F0F0;
+        }
+
+        .rating-display {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
+        .stars {
+            color: #FFA726;
+            font-size: 14px;
+        }
+
+        .rating-text {
+            color: var(--text-light);
+            font-size: 13px;
+        }
+
+        .no-ratings {
+            color: #999;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .quick-rate {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 8px 0;
+        }
+
+        .rate-label {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-right: 4px;
+        }
+
+        .star-btn {
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+
+        .star-btn:hover {
+            opacity: 1;
+        }
+
+        .review-btn,
+        .show-reviews-btn {
+            background: var(--orange-light);
+            color: var(--primary);
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            margin-right: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .review-btn:hover,
+        .show-reviews-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* REVIEWS LIST */
+        .reviews-list {
+            margin-top: 12px;
+            padding: 12px;
+            background: #FAFAFA;
+            border-radius: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .reviews-header h5 {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .reviews-header button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .review-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .review-header strong {
+            color: var(--text-dark);
+            font-size: 13px;
+        }
+
+        .review-comment {
+            color: var(--text-dark);
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 4px;
+        }
+
+        .review-date {
+            color: #999;
+            font-size: 11px;
+        }
+
+        /* ADD BUTTON */
         .add-btn {
-            background: var(--gradient-1);
+            background: var(--gradient);
             color: white;
             border: none;
-            padding: 10px 28px;
+            padding: 10px 24px;
             border-radius: 50px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: var(--shadow);
+            margin-top: 8px;
         }
 
         .add-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
         .quantity-controls {
             display: flex;
             align-items: center;
             gap: 12px;
-            background: var(--beige);
+            background: var(--orange-light);
             padding: 6px;
             border-radius: 50px;
+            margin-top: 8px;
         }
 
         .qty-btn {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border: none;
             background: white;
             border-radius: 50%;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--primary);
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.1);
         }
 
         .qty-btn:hover {
-            background: var(--gradient-1);
+            background: var(--gradient);
             color: white;
-            transform: scale(1.1);
         }
 
         .qty-display {
             font-weight: 700;
-            font-size: 18px;
-            min-width: 24px;
+            font-size: 16px;
+            min-width: 20px;
             text-align: center;
-            color: var(--brown-text);
+        }
+
+        /* ================================
+           MODAL
+        ================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-content h3 {
+            color: var(--text-dark);
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .rating-selector {
+            margin-bottom: 20px;
+        }
+
+        .rating-selector p {
+            color: var(--text-light);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .stars-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .star-select {
+            font-size: 32px;
+            cursor: pointer;
+            opacity: 0.3;
+            transition: opacity 0.2s;
+        }
+
+        .star-select.filled {
+            opacity: 1;
+        }
+
+        .char-count {
+            text-align: right;
+            color: #999;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
         }
 
         /* ================================
@@ -722,11 +688,11 @@
             right: 0;
             background: white;
             border-radius: 32px 32px 0 0;
-            box-shadow: 0 -10px 60px rgba(139, 69, 19, 0.3);
-            z-index: 2000;
+            box-shadow: 0 -10px 60px rgba(0, 0, 0, 0.3);
+            z-index: 1500;
             max-height: 80vh;
             overflow-y: auto;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s ease;
         }
 
         .cart-drawer.active {
@@ -737,38 +703,31 @@
             position: sticky;
             top: 0;
             background: white;
-            padding: 24px;
-            border-bottom: 2px solid var(--beige);
+            padding: 20px 24px;
+            border-bottom: 2px solid #F0F0F0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 10;
         }
 
         .cart-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            color: var(--brown-text);
+            color: var(--text-dark);
         }
 
         .close-cart {
             width: 36px;
             height: 36px;
             border: none;
-            background: var(--beige);
+            background: var(--orange-light);
             border-radius: 50%;
             cursor: pointer;
-            font-size: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .close-cart:hover {
-            background: var(--beige-dark);
-            transform: rotate(90deg);
+            font-size: 18px;
         }
 
         .cart-items {
-            padding: 24px;
+            padding: 20px;
         }
 
         .cart-item {
@@ -776,62 +735,80 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px;
-            background: var(--cream);
-            border-radius: 16px;
-            margin-bottom: 16px;
-        }
-
-        .cart-item-info h4 {
-            font-size: 16px;
-            color: var(--brown-text);
-            margin-bottom: 4px;
-        }
-
-        .cart-item-info p {
-            font-size: 14px;
-            color: var(--brown-light);
+            background: var(--orange-pale);
+            border-radius: 12px;
+            margin-bottom: 12px;
         }
 
         .cart-summary {
-            padding: 24px;
-            border-top: 2px solid var(--beige);
-            background: var(--cream);
+            padding: 20px;
+            border-top: 2px solid #F0F0F0;
+            background: var(--orange-pale);
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-size: 16px;
         }
 
         .summary-row.total {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--primary);
-            padding-top: 12px;
-            border-top: 2px solid var(--beige-dark);
-            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px solid #E0E0E0;
+            margin-top: 10px;
         }
 
         .checkout-btn {
             width: 100%;
-            padding: 20px;
-            background: var(--gradient-1);
+            padding: 18px;
+            background: var(--gradient);
             color: white;
             border: none;
-            border-radius: 16px;
+            border-radius: 50px;
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
             margin-top: 16px;
             box-shadow: var(--shadow);
-            transition: all 0.3s ease;
         }
 
-        .checkout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+        /* ================================
+           EMPTY STATE
+        ================================ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        /* ================================
+           BACK BUTTON
+        ================================ */
+        .back-btn {
+            background: var(--orange-light);
+            color: var(--primary);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .back-btn:hover {
+            background: var(--primary);
+            color: white;
         }
 
         /* ================================
@@ -843,156 +820,114 @@
         }
 
         .success-icon {
-            width: 120px;
-            height: 120px;
-            background: var(--gradient-1);
+            width: 100px;
+            height: 100px;
+            background: var(--gradient);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 60px;
-            animation: successPop 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes successPop {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); opacity: 1; }
+            margin: 0 auto 20px;
+            font-size: 50px;
         }
 
         .order-number {
-            font-size: 48px;
+            font-size: 42px;
             font-weight: 800;
-            background: var(--gradient-1);
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 20px 0;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: var(--brown-light);
-        }
-
-        .empty-icon {
-            font-size: 80px;
-            margin-bottom: 16px;
-            opacity: 0.3;
+            margin: 16px 0;
         }
 
         /* ================================
            RESPONSIVE
         ================================ */
         @media (max-width: 768px) {
-            .navbar {
-                padding: 12px 20px;
-            }
-
-            .logo-text {
-                font-size: 20px;
-            }
-
-            .hero {
-                padding: 60px 20px 40px;
-            }
-
             .container {
-                padding: 24px 20px;
+                padding: 24px 16px;
             }
 
+            .restaurants-grid,
             .menu-grid {
                 grid-template-columns: 1fr;
             }
 
-            .restaurant-card {
-                min-width: 280px;
+            .navbar {
+                padding: 12px 16px;
             }
-        }
 
-        .back-btn {
-            background: rgba(139, 69, 19, 0.1);
-            color: var(--brown-text);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-bottom: 24px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-btn:hover {
-            background: var(--gradient-1);
-            color: white;
+            .auth-card {
+                padding: 32px 24px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Background Decoration -->
-    <div class="bg-decoration">
-        <div class="float-circle"></div>
-        <div class="float-circle"></div>
-        <div class="float-circle"></div>
-    </div>
 
-    <!-- Welcome Screen -->
+    <!-- ================================
+         WELCOME SCREEN
+    ================================ -->
     <div id="welcome-screen" class="screen active">
         <div class="auth-container">
             <div class="auth-card">
                 <div class="auth-logo">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='80' fill='none' stroke='%238B4513' stroke-width='4'/%3E%3Cpath d='M60 80 L80 120 L100 60 L120 120 L140 80' fill='none' stroke='%238B4513' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Campus Eats">
+                    <div style="font-size: 60px; margin-bottom: 16px;">🍔</div>
                     <h1>Campus Eats</h1>
                     <p>Order food from campus vendors</p>
                 </div>
-                <button class="btn btn-primary" onclick="showScreen('login-screen')">Login with SRN</button>
-                <button class="btn btn-secondary" onclick="showScreen('register-screen')">New Student? Register</button>
+                <button class="btn btn-primary" onclick="showScreen('login-screen')" style="width: 100%; margin-bottom: 12px;">Login with SRN</button>
+                <button class="btn btn-secondary" onclick="showScreen('register-screen')" style="width: 100%;">New Student? Register</button>
             </div>
         </div>
     </div>
 
-    <!-- Login Screen -->
+    <!-- ================================
+         LOGIN SCREEN
+    ================================ -->
     <div id="login-screen" class="screen">
         <div class="auth-container">
             <div class="auth-card">
                 <div class="auth-logo">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='80' fill='none' stroke='%238B4513' stroke-width='4'/%3E%3Cpath d='M60 80 L80 120 L100 60 L120 120 L140 80' fill='none' stroke='%238B4513' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Campus Eats">
+                    <div style="font-size: 60px; margin-bottom: 16px;">🍔</div>
                     <h1>Welcome Back</h1>
                     <p>Login to your account</p>
                 </div>
                 <form onsubmit="loginStudent(event)">
                     <div class="form-group">
                         <label>Student SRN</label>
-                        <input type="text" id="login-srn" placeholder="R25EA170" required maxlength="8" style="text-transform: uppercase;">
+                        <input type="text" id="login-srn" placeholder="R26EA001" required maxlength="8" style="text-transform: uppercase;">
                     </div>
                     <div class="form-group">
                         <label>4-Digit PIN</label>
                         <input type="password" id="login-pin" placeholder="••••" required maxlength="4" pattern="[0-9]{4}">
                     </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">Login</button>
                 </form>
-                <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">Back</button>
+                <button class="btn btn-secondary" onclick="showScreen('welcome-screen')" style="width: 100%;">Back</button>
             </div>
         </div>
     </div>
 
-    <!-- Register Screen -->
+    <!-- ================================
+         REGISTER SCREEN
+    ================================ -->
     <div id="register-screen" class="screen">
         <div class="auth-container">
             <div class="auth-card">
                 <div class="auth-logo">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='80' fill='none' stroke='%238B4513' stroke-width='4'/%3E%3Cpath d='M60 80 L80 120 L100 60 L120 120 L140 80' fill='none' stroke='%238B4513' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Campus Eats">
+                    <div style="font-size: 60px; margin-bottom: 16px;">🍔</div>
                     <h1>Create Account</h1>
                     <p>Join Campus Eats today</p>
                 </div>
                 <form onsubmit="registerStudent(event)">
                     <div class="form-group">
                         <label>Student SRN</label>
-                        <input type="text" id="register-srn" placeholder="R25EA170" required maxlength="8" style="text-transform: uppercase;">
+                        <input type="text" id="register-srn" placeholder="R26EA001" required maxlength="8" style="text-transform: uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="register-name" placeholder="John Doe" required>
                     </div>
                     <div class="form-group">
                         <label>Create 4-Digit PIN</label>
@@ -1002,24 +937,27 @@
                         <label>Confirm PIN</label>
                         <input type="password" id="register-pin-confirm" placeholder="••••" required maxlength="4" pattern="[0-9]{4}">
                     </div>
-                    <button type="submit" class="btn btn-primary">Create Account</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">Create Account</button>
                 </form>
-                <button class="btn btn-secondary" onclick="showScreen('welcome-screen')">Back</button>
+                <button class="btn btn-secondary" onclick="showScreen('welcome-screen')" style="width: 100%;">Back</button>
             </div>
         </div>
     </div>
 
-    <!-- Main App -->
+    <!-- ================================
+         MAIN APP
+    ================================ -->
     <div id="main-app" class="screen">
         <!-- Navigation -->
-        <nav class="navbar" id="navbar">
+        <nav class="navbar">
             <div class="nav-content">
                 <div class="logo-section" onclick="navigateTo('home-screen')">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='80' fill='none' stroke='%238B4513' stroke-width='4'/%3E%3Cpath d='M60 80 L80 120 L100 60 L120 120 L140 80' fill='none' stroke='%238B4513' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" alt="Campus Eats" class="logo-img">
+                    <div style="font-size: 32px;">🍔</div>
                     <div class="logo-text">Campus Eats</div>
                 </div>
                 <div class="nav-actions">
-                    <button class="cart-button" onclick="toggleCart()">
+                    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                    <button class="btn cart-button" onclick="toggleCart()">
                         🛒 Cart
                         <span class="cart-badge" id="cart-badge">0</span>
                     </button>
@@ -1027,74 +965,78 @@
             </div>
         </nav>
 
-        <!-- Home Screen -->
+        <!-- ================================
+             HOME SCREEN
+        ================================ -->
         <div id="home-screen" class="screen active">
-            <!-- Hero Section -->
-            <section class="hero">
-                <div class="hero-content">
-                    <h1 class="hero-title">Delicious Food,<br>Delivered Fast</h1>
-                    <p class="hero-subtitle">Order from your favorite campus vendors</p>
-                    <div class="hero-search">
-                        <div class="search-box">
-                            <input type="text" class="search-input" id="restaurant-search" placeholder="Search restaurants..." oninput="filterRestaurants()">
-                            <span class="search-icon">🔍</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Restaurants -->
             <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Popular Restaurants</h2>
-                    <p class="section-subtitle">Fresh food from campus vendors</p>
+                <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Delicious Food, Delivered Fast</h2>
+                <p style="color: var(--text-light); margin-bottom: 24px;">Order from your favorite campus vendors</p>
+
+                <!-- Search -->
+                <div class="search-box">
+                    <input type="text" class="search-input" id="restaurant-search" placeholder="Search restaurants or dishes..." oninput="filterRestaurants()">
+                    <span class="search-icon">🔍</span>
                 </div>
-                <div class="restaurants-scroll" id="restaurants-list"></div>
+
+                <!-- Veg/Non-Veg Filter -->
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterHomeByType('all', this)">🍽️ All</button>
+                    <button class="filter-btn" onclick="filterHomeByType('veg', this)">🟢 Veg</button>
+                    <button class="filter-btn" onclick="filterHomeByType('nonveg', this)">🔴 Non-Veg</button>
+                </div>
+
+                <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">Popular Restaurants</h3>
+                <div class="restaurants-grid" id="restaurants-list"></div>
             </div>
         </div>
 
-        <!-- Restaurant Menu Screen -->
+        <!-- ================================
+             MENU SCREEN
+        ================================ -->
         <div id="menu-screen" class="screen">
             <div class="container">
                 <button class="back-btn" onclick="navigateTo('home-screen')">← Back to Restaurants</button>
                 
-                <div class="section-header">
-                    <h2 class="section-title" id="menu-title">Menu</h2>
-                    <p class="section-subtitle">Choose your favorites</p>
+                <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;" id="menu-title">Menu</h2>
+                <p style="color: var(--text-light); margin-bottom: 24px;">Choose your favorites</p>
+
+                <!-- Search Menu -->
+                <div class="search-box">
+                    <input type="text" class="search-input" id="menu-search" placeholder="Search menu items..." oninput="filterMenu()">
+                    <span class="search-icon">🔍</span>
                 </div>
 
-                <div class="hero-search" style="margin-bottom: 32px;">
-                    <div class="search-box">
-                        <input type="text" class="search-input" id="menu-search" placeholder="Search menu items..." oninput="filterMenu()">
-                        <span class="search-icon">🔍</span>
-                    </div>
-                </div>
-
-                <div class="filter-tabs">
-                    <button class="filter-tab active" onclick="filterByType('all', this)">🍽️ All</button>
-                    <button class="filter-tab" onclick="filterByType('VEG', this)">🟢 Veg</button>
-                    <button class="filter-tab" onclick="filterByType('NON-VEG', this)">🔴 Non-Veg</button>
+                <!-- Menu Filter -->
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterMenuByType('all', this)">🍽️ All</button>
+                    <button class="filter-btn" onclick="filterMenuByType('VEG', this)">🟢 Veg</button>
+                    <button class="filter-btn" onclick="filterMenuByType('NON-VEG', this)">🔴 Non-Veg</button>
                 </div>
 
                 <div class="menu-grid" id="menu-list"></div>
             </div>
         </div>
 
-        <!-- Success Screen -->
+        <!-- ================================
+             SUCCESS SCREEN
+        ================================ -->
         <div id="success-screen" class="screen">
             <div class="container">
                 <div class="success-screen">
                     <div class="success-icon">✓</div>
-                    <h2 style="font-size: 32px; margin-bottom: 16px; color: var(--brown-text);">Order Placed!</h2>
+                    <h2 style="font-size: 28px; margin-bottom: 12px;">Order Placed!</h2>
                     <div class="order-number" id="order-number">#CE12345678</div>
-                    <p style="font-size: 18px; color: var(--brown-light); margin-bottom: 32px;">Your order has been sent to the vendor</p>
-                    <button class="btn btn-primary" onclick="navigateTo('home-screen')" style="max-width: 300px; margin: 0 auto;">Back to Home</button>
+                    <p style="font-size: 16px; color: var(--text-light); margin-bottom: 28px;">Your order has been sent to the vendor</p>
+                    <button class="btn btn-primary" onclick="navigateTo('home-screen')" style="max-width: 300px;">Back to Home</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Cart Drawer -->
+    <!-- ================================
+         CART DRAWER
+    ================================ -->
     <div class="cart-drawer" id="cart-drawer">
         <div class="cart-header">
             <h3 class="cart-title">Your Cart</h3>
@@ -1108,7 +1050,7 @@
             </div>
             <div class="summary-row">
                 <span>Delivery Fee</span>
-                <span id="delivery-fee">₹20</span>
+                <span>₹20</span>
             </div>
             <div class="summary-row total">
                 <span>Total</span>
@@ -1118,11 +1060,44 @@
         </div>
     </div>
 
+    <!-- ================================
+         REVIEW MODAL (Hidden by default)
+    ================================ -->
+    <div id="review-modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeReviewModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <h3>Review: <span id="review-item-name"></span></h3>
+                
+                <div class="rating-selector">
+                    <p>Your Rating:</p>
+                    <div class="stars-selector" id="stars-selector">
+                        <span class="star-select" onclick="setRating(1)">⭐</span>
+                        <span class="star-select" onclick="setRating(2)">⭐</span>
+                        <span class="star-select" onclick="setRating(3)">⭐</span>
+                        <span class="star-select" onclick="setRating(4)">⭐</span>
+                        <span class="star-select" onclick="setRating(5)">⭐</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <textarea id="review-comment" rows="5" placeholder="Share your experience..." maxlength="500"></textarea>
+                    <div class="char-count"><span id="char-count">0</span>/500</div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeReviewModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitReview()">Submit Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script>
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
             authDomain: "campus-eats-007.firebaseapp.com",
@@ -1135,12 +1110,16 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // State
         let currentUser = null;
         let cart = [];
         let allRestaurants = [];
         let currentRestaurant = null;
         let allMenuItems = [];
         let currentFilter = 'all';
+        let homeVegFilter = 'all';
+        let reviewingItem = null;
+        let reviewRating = 0;
 
         // Hash PIN
         function hashPIN(pin) {
@@ -1149,7 +1128,9 @@
 
         // Screen Management
         function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('#welcome-screen, #login-screen, #register-screen, #main-app').forEach(s => {
+                s.classList.remove('active');
+            });
             document.getElementById(screenId).classList.add('active');
         }
 
@@ -1163,6 +1144,7 @@
         async function registerStudent(e) {
             e.preventDefault();
             const srn = document.getElementById('register-srn').value.toUpperCase();
+            const name = document.getElementById('register-name').value;
             const pin = document.getElementById('register-pin').value;
             const confirmPin = document.getElementById('register-pin-confirm').value;
 
@@ -1179,12 +1161,14 @@
                 }
 
                 await db.collection('students').doc(srn).set({
+                    name: name,
                     pinHash: hashPIN(pin),
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
                 localStorage.setItem('srn', srn);
-                currentUser = { srn };
+                localStorage.setItem('name', name);
+                currentUser = { srn, name };
                 loadApp();
             } catch (error) {
                 alert('Registration failed!');
@@ -1211,6 +1195,7 @@
                 }
 
                 localStorage.setItem('srn', srn);
+                localStorage.setItem('name', doc.data().name);
                 currentUser = { srn, ...doc.data() };
                 loadApp();
             } catch (error) {
@@ -1219,28 +1204,32 @@
             }
         }
 
+        // Logout
+        function logout() {
+            localStorage.removeItem('srn');
+            localStorage.removeItem('name');
+            currentUser = null;
+            cart = [];
+            showScreen('welcome-screen');
+        }
+
         // Load App
         async function loadApp() {
             showScreen('main-app');
             setTimeout(() => {
-                const mainApp = document.getElementById('main-app');
-                mainApp.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.getElementById('home-screen').classList.add('active');
+                navigateTo('home-screen');
             }, 100);
-
             await loadRestaurants();
         }
 
-        // Load Restaurants - FIXED: Only from 'vendor' collection
+        // Load Restaurants
         async function loadRestaurants() {
             try {
-                // CRITICAL FIX: Use 'vendor' collection, not 'vendors'
                 const snapshot = await db.collection('vendor').get();
                 allRestaurants = [];
                 
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    // Only add if isActive is true
                     if (data.isActive) {
                         allRestaurants.push({ 
                             id: doc.id, 
@@ -1258,12 +1247,17 @@
         }
 
         // Display Restaurants
-        function displayRestaurants(searchTerm = '') {
+        function displayRestaurants() {
             const container = document.getElementById('restaurants-list');
+            const searchTerm = document.getElementById('restaurant-search').value.toLowerCase();
             
             let filtered = allRestaurants.filter(r => 
-                r.name.toLowerCase().includes(searchTerm.toLowerCase())
+                r.name.toLowerCase().includes(searchTerm)
             );
+
+            // Apply veg/non-veg filter on home
+            // For simplicity, we're showing all restaurants
+            // In production, you'd filter based on menu items
 
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="empty-state"><div class="empty-icon">🍽️</div><p>No restaurants found</p></div>';
@@ -1274,12 +1268,12 @@
                 <div class="restaurant-card" onclick='openRestaurant(${JSON.stringify(r).replace(/'/g, "&#39;")})'>
                     <div class="restaurant-image">🍽️</div>
                     <div class="restaurant-info">
-                        <div class="restaurant-header">
-                            <div class="restaurant-name">${r.name}</div>
-                            <div class="restaurant-badge">⭐ ${r.rating || '4.5'}</div>
+                        <div class="restaurant-name">${r.name}</div>
+                        <div class="restaurant-meta">
+                            <span>⭐ ${r.rating || '4.5'}</span>
+                            <span>⏱️ ${r.prep_time || '20'} min</span>
                         </div>
                         <div class="restaurant-meta">
-                            <span>⏱️ ${r.prep_time || '20'} min</span>
                             <span>📍 ${r.location || 'Campus'}</span>
                         </div>
                     </div>
@@ -1289,8 +1283,14 @@
 
         // Filter Restaurants
         function filterRestaurants() {
-            const searchTerm = document.getElementById('restaurant-search').value;
-            displayRestaurants(searchTerm);
+            displayRestaurants();
+        }
+
+        function filterHomeByType(filter, button) {
+            homeVegFilter = filter;
+            document.querySelectorAll('#home-screen .filter-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            displayRestaurants();
         }
 
         // Open Restaurant Menu
@@ -1299,7 +1299,6 @@
             document.getElementById('menu-title').textContent = restaurant.name;
             
             try {
-                // Load menu from menu/{storeName}/items
                 const snapshot = await db.collection('menu')
                     .doc(restaurant.name)
                     .collection('items')
@@ -1309,6 +1308,27 @@
                 snapshot.forEach(doc => {
                     allMenuItems.push({ id: doc.id, ...doc.data() });
                 });
+
+                // Load ratings for each item
+                for (let item of allMenuItems) {
+                    const ratingsSnapshot = await db.collection('ratings')
+                        .where('itemId', '==', item.id)
+                        .get();
+                    
+                    if (!ratingsSnapshot.empty) {
+                        let totalRating = 0;
+                        let count = 0;
+                        ratingsSnapshot.forEach(doc => {
+                            totalRating += doc.data().rating;
+                            count++;
+                        });
+                        item.avgRating = (totalRating / count).toFixed(1);
+                        item.totalRatings = count;
+                    } else {
+                        item.avgRating = 0;
+                        item.totalRatings = 0;
+                    }
+                }
 
                 console.log('Loaded menu items:', allMenuItems.length);
                 displayMenu();
@@ -1351,44 +1371,229 @@
                 const cartItem = cart.find(c => c.id === item.id);
                 const quantity = cartItem ? cartItem.quantity : 0;
                 const isVeg = item.vegNonVeg && item.vegNonVeg.toUpperCase() === 'VEG';
+                const stars = item.avgRating > 0 ? '⭐'.repeat(Math.round(item.avgRating)) : '';
 
                 return `
                     <div class="menu-card">
-                        <div class="menu-info">
-                            <div class="menu-header">
-                                <div class="veg-badge ${!isVeg ? 'non-veg' : ''}">
-                                    <div class="veg-dot ${!isVeg ? 'non-veg' : ''}"></div>
-                                </div>
-                                <div class="menu-name">${item.name}</div>
+                        <div class="menu-header">
+                            <div class="veg-badge ${!isVeg ? 'non-veg' : ''}">
+                                <div class="veg-dot ${!isVeg ? 'non-veg' : ''}"></div>
                             </div>
-                            <div class="menu-price">₹${item.price}</div>
+                            <div class="menu-name">${item.name}</div>
                         </div>
-                        <div class="menu-actions">
-                            ${quantity === 0 ? `
-                                <button class="add-btn" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&#39;")})'>Add</button>
-                            ` : `
-                                <div class="quantity-controls">
-                                    <button class="qty-btn" onclick='decreaseQuantity("${item.id}")'>-</button>
-                                    <div class="qty-display">${quantity}</div>
-                                    <button class="qty-btn" onclick='increaseQuantity("${item.id}")'>+</button>
+                        <div class="menu-price">₹${item.price}</div>
+
+                        <!-- RATINGS -->
+                        <div class="ratings-section">
+                            ${item.totalRatings > 0 ? `
+                                <div class="rating-display">
+                                    <span class="stars">${stars}</span>
+                                    <span class="rating-text">${item.avgRating} (${item.totalRatings} ratings)</span>
                                 </div>
+                            ` : `
+                                <p class="no-ratings">No ratings yet</p>
                             `}
+                            
+                            <div class="quick-rate">
+                                <span class="rate-label">Quick Rate:</span>
+                                ${[1, 2, 3, 4, 5].map(star => `
+                                    <span class="star-btn" onclick='quickRate("${item.id}", ${star})'>⭐</span>
+                                `).join('')}
+                            </div>
+
+                            <button class="review-btn" onclick='openReviewModal(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
+                                ✍️ Write Review
+                            </button>
+                            
+                            ${item.totalRatings > 0 ? `
+                                <button class="show-reviews-btn" onclick='showReviews("${item.id}")'>
+                                    📖 Show Reviews (${item.totalRatings})
+                                </button>
+                            ` : ''}
                         </div>
+
+                        ${quantity === 0 ? `
+                            <button class="add-btn" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&#39;")})'>Add to Cart</button>
+                        ` : `
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick='decreaseQuantity("${item.id}")'>-</button>
+                                <div class="qty-display">${quantity}</div>
+                                <button class="qty-btn" onclick='increaseQuantity("${item.id}")'>+</button>
+                            </div>
+                        `}
                     </div>
                 `;
             }).join('');
         }
 
         // Filter Menu
-        function filterByType(type, button) {
+        function filterMenuByType(type, button) {
             currentFilter = type;
-            document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#menu-screen .filter-btn').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             displayMenu();
         }
 
         function filterMenu() {
             displayMenu();
+        }
+
+        // Quick Rate
+        async function quickRate(itemId, rating) {
+            if (!currentUser) {
+                alert('Please login to rate');
+                return;
+            }
+
+            try {
+                await db.collection('ratings').add({
+                    itemId: itemId,
+                    srn: currentUser.srn,
+                    rating: rating,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('Rating submitted!');
+                // Reload menu to show updated ratings
+                openRestaurant(currentRestaurant);
+            } catch (error) {
+                console.error('Error rating:', error);
+                alert('Failed to submit rating');
+            }
+        }
+
+        // Review Modal
+        function openReviewModal(item) {
+            if (!currentUser) {
+                alert('Please login to review');
+                return;
+            }
+            reviewingItem = item;
+            reviewRating = 0;
+            document.getElementById('review-item-name').textContent = item.name;
+            document.getElementById('review-comment').value = '';
+            document.getElementById('char-count').textContent = '0';
+            updateStarSelector();
+            document.getElementById('review-modal').style.display = 'block';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('review-modal').style.display = 'none';
+            reviewingItem = null;
+            reviewRating = 0;
+        }
+
+        function setRating(rating) {
+            reviewRating = rating;
+            updateStarSelector();
+        }
+
+        function updateStarSelector() {
+            const stars = document.querySelectorAll('.star-select');
+            stars.forEach((star, index) => {
+                if (index < reviewRating) {
+                    star.classList.add('filled');
+                } else {
+                    star.classList.remove('filled');
+                }
+            });
+        }
+
+        // Char counter for review
+        document.addEventListener('DOMContentLoaded', () => {
+            const reviewComment = document.getElementById('review-comment');
+            if (reviewComment) {
+                reviewComment.addEventListener('input', (e) => {
+                    document.getElementById('char-count').textContent = e.target.value.length;
+                });
+            }
+        });
+
+        // Submit Review
+        async function submitReview() {
+            if (reviewRating === 0) {
+                alert('Please select a rating');
+                return;
+            }
+
+            const comment = document.getElementById('review-comment').value.trim();
+            if (comment.length === 0) {
+                alert('Please write a review');
+                return;
+            }
+
+            try {
+                // Submit rating
+                await db.collection('ratings').add({
+                    itemId: reviewingItem.id,
+                    srn: currentUser.srn,
+                    rating: reviewRating,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Submit review
+                await db.collection('reviews').add({
+                    itemId: reviewingItem.id,
+                    srn: currentUser.srn,
+                    rating: reviewRating,
+                    comment: comment,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('Review submitted successfully!');
+                closeReviewModal();
+                // Reload menu
+                openRestaurant(currentRestaurant);
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Failed to submit review');
+            }
+        }
+
+        // Show Reviews
+        async function showReviews(itemId) {
+            try {
+                const snapshot = await db.collection('reviews')
+                    .where('itemId', '==', itemId)
+                    .orderBy('createdAt', 'desc')
+                    .limit(10)
+                    .get();
+
+                let reviewsHTML = '<div class="reviews-list"><div class="reviews-header"><h5>Reviews</h5><button onclick="this.parentElement.parentElement.remove()">✕</button></div>';
+                
+                snapshot.forEach(doc => {
+                    const review = doc.data();
+                    const maskedSRN = review.srn.substring(0, 3) + '****';
+                    const date = review.createdAt ? new Date(review.createdAt.toDate()).toLocaleDateString() : 'Just now';
+                    
+                    reviewsHTML += `
+                        <div class="review-item">
+                            <div class="review-header">
+                                <strong>${maskedSRN}</strong>
+                                <span>${'⭐'.repeat(review.rating)}</span>
+                            </div>
+                            <p class="review-comment">${review.comment}</p>
+                            <p class="review-date">${date}</p>
+                        </div>
+                    `;
+                });
+
+                reviewsHTML += '</div>';
+                
+                // Insert after the ratings section
+                const cards = document.querySelectorAll('.menu-card');
+                cards.forEach(card => {
+                    if (card.textContent.includes('Show Reviews')) {
+                        const ratingsSection = card.querySelector('.ratings-section');
+                        if (ratingsSection) {
+                            ratingsSection.insertAdjacentHTML('beforeend', reviewsHTML);
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                alert('Failed to load reviews');
+            }
         }
 
         // Cart Functions
@@ -1443,9 +1648,9 @@
 
             container.innerHTML = cart.map(item => `
                 <div class="cart-item">
-                    <div class="cart-item-info">
-                        <h4>${item.name}</h4>
-                        <p>₹${item.price} × ${item.quantity}</p>
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 4px;">${item.name}</h4>
+                        <p style="color: var(--text-light); font-size: 14px;">₹${item.price} × ${item.quantity}</p>
                     </div>
                     <div class="quantity-controls">
                         <button class="qty-btn" onclick='decreaseQuantity("${item.id}")'>-</button>
@@ -1460,7 +1665,6 @@
             const total = subtotal + deliveryFee;
 
             document.getElementById('subtotal').textContent = `₹${subtotal}`;
-            document.getElementById('delivery-fee').textContent = `₹${deliveryFee}`;
             document.getElementById('total').textContent = `₹${total}`;
             summary.style.display = 'block';
         }
@@ -1496,17 +1700,7 @@
             }
         }
 
-        // Navbar Scroll Effect
-        window.addEventListener('scroll', () => {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Auto-login if exists
+        // Auto-login
         window.addEventListener('DOMContentLoaded', async () => {
             const srn = localStorage.getItem('srn');
             if (srn) {
