@@ -1,560 +1,2457 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Campus Eats - Menu Uploader (FIXED)</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Eats - Database Setup</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
         }
+
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
+            border-radius: 24px;
             padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
-        h1 { color: #FF6B35; font-size: 32px; margin-bottom: 10px; }
-        .subtitle { color: #666; margin-bottom: 30px; font-size: 18px; }
-        .big-button {
-            background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
-            color: white;
-            border: none;
-            padding: 25px 50px;
-            font-size: 24px;
-            font-weight: bold;
-            border-radius: 15px;
-            cursor: pointer;
-            width: 100%;
-            margin: 20px 0;
-            transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(255,107,53,0.4);
+
+        h1 {
+            font-size: 32px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
         }
-        .big-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(255,107,53,0.6);
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 32px;
+            font-size: 16px;
         }
-        .big-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .status {
-            margin: 20px 0;
-            padding: 25px;
+
+        .warning-box {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
             border-radius: 12px;
-            font-size: 18px;
+            padding: 16px;
+            margin-bottom: 32px;
+        }
+
+        .warning-box h3 {
+            color: #92400e;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-box p {
+            color: #92400e;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border: 2px solid #60a5fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .info-box h3 {
+            color: #1e40af;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #1e40af;
+            font-size: 14px;
+        }
+
+        .info-box li {
+            margin-bottom: 4px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .progress-container {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
             font-weight: 600;
         }
-        .success { background: #E8F5E9; color: #2E7D32; border-left: 5px solid #2ECC71; }
-        .error { background: #FFEBEE; color: #C62828; border-left: 5px solid #E74C3C; }
-        .loading { background: #E3F2FD; color: #1976D2; border-left: 5px solid #3498DB; }
-        .progress {
-            margin-top: 15px;
-            font-size: 36px;
-            color: #FF6B35;
-            font-weight: 800;
-        }
-        .warning-box {
-            background: #FFF3E0;
-            border: 2px solid #FF6B35;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        .warning-box h3 { color: #FF6B35; margin-bottom: 10px; }
-        .code-box {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
+
+        .log-container {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
             font-size: 13px;
-            overflow-x: auto;
-            margin: 10px 0;
+            margin-top: 16px;
+        }
+
+        .log-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .log-success {
+            color: #10b981;
+        }
+
+        .log-error {
+            color: #ef4444;
+        }
+
+        .log-info {
+            color: #6b7280;
+        }
+
+        .result-box {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            display: none;
+        }
+
+        .result-box h3 {
+            color: #065f46;
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🍽️ Campus Eats Menu Uploader</h1>
-        <p class="subtitle">Upload 281 items: Grub Foods (81) + Roll Me (82) + Siddi Vinayaka (118)</p>
-        
+        <h1>🔧 Campus Eats Database Setup</h1>
+        <p class="subtitle">Complete database initialization for vendors and menu items</p>
+
         <div class="warning-box">
-            <h3>⚠️ STEP 1: Update Firebase Rules</h3>
-            <p><strong>Go to Firebase Console → Firestore Database → Rules</strong></p>
-            <p>Replace with:</p>
-            <div class="code-box">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}</div>
-            <p style="margin-top: 10px;"><strong>Click "Publish"</strong></p>
+            <h3>⚠️ WARNING</h3>
+            <p>This will DELETE ALL existing data in your Firestore database and upload fresh data. This action cannot be undone!</p>
         </div>
 
-        <button class="big-button" onclick="uploadEverything()" id="upload-btn">
-            🚀 UPLOAD ALL 281 ITEMS NOW
+        <div class="info-box">
+            <h3>📋 What will be created:</h3>
+            <ul>
+                <li><strong>vendor</strong> collection: 3 stores (GRUB FOODS, ROLL ME, SIDDI VINAYAKA GARDEN)</li>
+                <li><strong>menu/{storeName}/items</strong>: 281 menu items organized by store</li>
+                <li>Each vendor will have: name, location, rating, prep_time, isActive</li>
+                <li>Each menu item will have: name, price, category, vegNonVeg</li>
+            </ul>
+        </div>
+
+        <button class="btn btn-danger" id="delete-btn" onclick="deleteAllData()">
+            🗑️ Step 1: Delete All Existing Data
         </button>
-        
-        <div id="status"></div>
+
+        <button class="btn btn-primary" id="upload-btn" onclick="uploadData()" disabled>
+            ⬆️ Step 2: Upload Menu Data
+        </button>
+
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill">0%</div>
+            </div>
+            <div class="log-container" id="log-container"></div>
+        </div>
+
+        <div class="result-box" id="result-box">
+            <h3>✅ Upload Complete!</h3>
+            <p>Your database has been successfully initialized.</p>
+            <div class="result-stats" id="result-stats"></div>
+        </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <script>
-        // Your Firebase config
         const firebaseConfig = {
-            apiKey: "AIzaSyBLJSNdxM2xzgHMdpPifqnHKfhkt5Jgqv0",
+            apiKey: "AIzaSyBlJSNdxM2xzaHMdbPiFqhHKfhkt5Jgqv0",
             authDomain: "campus-eats-007.firebaseapp.com",
             projectId: "campus-eats-007",
             storageBucket: "campus-eats-007.firebasestorage.app",
             messagingSenderId: "201751423832",
-            appId: "1:201751423832:web:6d4692dbc1053789fb132d"
+            appId: "1:201751423832:web:6d4592dbc1053789fb132d"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // Menu data from Excel
         const menuData = [
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Aloo Bonda (2 pcs)", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Bhajji 3 pcs (Banana)", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Bhajji 3 pcs (Mirchi)", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Buttermilk", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Cheese Masala Maggie", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Chilli Paneer", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Dahi Bhalla", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Dal Khichdi", "Price (₹)": 95, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Gobhi Manchurian", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Hot and Sour Soup", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Lemon Soda", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Maggie", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Manchow Soup", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Pav Bhaji", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Sabudana Khichdi", "Price (₹)": 85, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Schezwan Paneer", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Simpli Veggies (Boiled Veg)", "Price (₹)": 50, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Spicy Veggies", "Price (₹)": 50, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Sweet Corn Soup", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Tomato Soup", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Veg Fried Rice", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Veg Manchurian", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Veg Noodles", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Al-a-Carte", "Item Name": "Vegetable Fry", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Biryani", "Item Name": "Mushroom Biryani", "Price (₹)": 90, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Biryani", "Item Name": "Paneer Biryani", "Price (₹)": 120, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Biryani", "Item Name": "Veg Biryani", "Price (₹)": 90, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Aloo Paratha - 2 nos", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Bisibelle Bhat", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Idly - 2 nos", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Idly - 3 nos", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Idly Vada (2 Idly, 1 Vada)", "Price (₹)": 55, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Kesari Bhat", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Khali Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Lemon Rice", "Price (₹)": 55, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Masala Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Mini Tiffin", "Price (₹)": 75, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Onion Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Paneer Dosa", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Paneer Paratha - 2 nos", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Pesarattu", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Plain Dosa", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Pongal", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Poori - 3 nos", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Puliyogare", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Ragi Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Rava Idly", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Rawa Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Schezwan Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Semiya Upma", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Set Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Tomato Dosa", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Upma", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Uthappam", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Vada - 2 nos", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Breakfast", "Item Name": "Vangi Bhat", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Chinese Combo", "Item Name": "Chinese Veg Combo Noodles", "Price (₹)": 110, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Chinese Combo", "Item Name": "Chinese Veg Combo Rice", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Badam Milk", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Boost", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Bournvita", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Coffee", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Ginger Tea", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Green Tea", "Price (₹)": 18, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Horlicks", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Instant Coffee", "Price (₹)": 18, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Jaggery Tea", "Price (₹)": 18, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Lemon Tea", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Tea", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Hot Beverages", "Item Name": "Tulsi Tea", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Chapati/Rice with Veg Curry", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Chole Bhature", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Kadhi Chawal", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Lachha Paratha with Paneer", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Paneer Combo", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Pindi Chole Combo", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Poori Subzi", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Rajma Chawal", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Veg Rice Combo (5 Varieties)", "Price (₹)": "50-90", "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Veg Thali (North Indian)", "Price (₹)": 110, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "GRUB FOODS", "Category": "Indian Combo", "Item Name": "Veg Thali (South Indian)", "Price (₹)": 110, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Chicken Sukka Dry", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Gowan Chicken", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Lollipop Soup", "Price (₹)": 159, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Pepper Wings", "Price (₹)": 149, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Special Chicken", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Andra Chicken Special", "Item Name": "Spicy Wings", "Price (₹)": 149, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Chicken GSB", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Chicken Manchurian", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Chilli Chicken", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Donne Chicken Lollipop", "Price (₹)": 179, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Egg Chilli", "Price (₹)": 119, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Hyderabadi Chilli Chicken", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Chicken Platter", "Item Name": "Lemon Chicken", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Biriyani Rice + 2 Pcs Kebab", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Chapathi + Chicken Curry", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Chapathi + Egg Curry", "Price (₹)": 79, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Donne Biriyani Rice + 2 Pcs Kebab", "Price (₹)": 139, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Donne Chicken Biriyani + 2 Pcs Kebab", "Price (₹)": 189, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Ghee Rice + 2 Pcs Kebab", "Price (₹)": 139, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Gowan Chicken + 2 Pcs Parota", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Grilled Chicken Quarter + 2 Pcs Kuboas", "Price (₹)": 139, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Hyderabadi Chicken Biriyani + 2 Pcs Kebab", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Idli + Chicken Chop Curry", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Naati Chicken Rice + 2 Pcs Kebab", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Naati Egg Rice + 2 Pcs Kebab", "Price (₹)": 139, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Parota + Chicken Curry", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Parota + Egg Curry", "Price (₹)": 79, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Combos Calling", "Item Name": "Rice + Chicken Curry + 2 Pcs Kebab", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Curry", "Item Name": "Chicken Chop", "Price (₹)": 139, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Curry", "Item Name": "Chicken Masala", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Curry", "Item Name": "Egg Curry", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Chicken Kebab", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Chicken Kebab Boneless", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Chicken Lollipop", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Grill Chicken Full", "Price (₹)": 379, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Grill Chicken Half", "Price (₹)": 219, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian", "Item Name": "Grill Chicken Quarter", "Price (₹)": 119, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian Bread", "Item Name": "Chapathi", "Price (₹)": 15, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian Bread", "Item Name": "Kuboas", "Price (₹)": 19, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Indian Bread", "Item Name": "Parota", "Price (₹)": 19, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Lassi", "Item Name": "Mango Lassi", "Price (₹)": 89, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Lassi", "Item Name": "Strawberry Lassi", "Price (₹)": 89, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Lassi", "Item Name": "Sweet Lassi", "Price (₹)": 59, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Noodles", "Item Name": "Chicken Noodles", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Noodles", "Item Name": "Egg Noodles", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Noodles", "Item Name": "Schezwan Chicken Noodles", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Noodles", "Item Name": "Schezwan Egg Noodles", "Price (₹)": 109, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "(2 Pcs Grilled Chicken) RYL BIRIYANI RICE", "Price (₹)": 199, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "(2 Pcs Grilled Chicken) RYL BIRYANI (DONNE STYLE)", "Price (₹)": 199, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Biriyani Rice", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Donne Biriyani Rice", "Price (₹)": 99, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Donne Chicken Biriyani", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Egg Biriyani", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Egg Fried Rice", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Ghee Rice", "Price (₹)": 99, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Grill Chicken Biriyani", "Price (₹)": 199, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Hyderabadi Chicken Biriyani", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Naati Chicken Rice", "Price (₹)": 129, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rice", "Item Name": "Nellore Chicken Biriyani", "Price (₹)": 159, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Egg Kebab Roll", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Kebab Roll", "Price (₹)": 69, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Liver Roll", "Price (₹)": 49, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Lollipop Roll", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Chicken Tikka Roll", "Price (₹)": 59, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Double Chicken Kebab Roll", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Double Chicken Liver Roll", "Price (₹)": 79, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Double Chicken Tikka Roll", "Price (₹)": 79, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Double Chicken Tikka Roll", "Price (₹)": 109, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Non-Veg)", "Item Name": "Roll Me Special", "Price (₹)": 129, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Chef's Special", "Price (₹)": 99, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Double Mushroom Roll", "Price (₹)": 79, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Double Paneer Roll", "Price (₹)": 89, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Double Potato Roll", "Price (₹)": 69, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Mushroom Roll", "Price (₹)": 59, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Paneer Roll", "Price (₹)": 69, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Potato Roll", "Price (₹)": 49, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "ROLL ME", "Category": "Rolls (Veg)", "Item Name": "Veggie Roll", "Price (₹)": 59, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "(Whole ShaWarma) DOUBLE ShaWarma", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "Plate Chicken ShaWarma", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "Plate Paneer ShaWarma", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "Regular ShaWarma", "Price (₹)": 89, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "ROLL ME", "Category": "ShaWarma", "Item Name": "Whole ShaWarma", "Price (₹)": 149, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Dal Fry", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Dal Khichdi", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Kaju Curry", "Price (₹)": 150, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Matar Khichdi", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "AVG Special", "Item Name": "Palak Khichdi", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "2 Pcs Idly Vada", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Bhelpuri / Sevpuri", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Boost / Horlicks", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Chaat (Day 1 Pcs)", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Coffee / Tea / Badam", "Price (₹)": 20, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Curd Badam Milk", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Curd Lassi", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Filter Coffee / Badam Milk", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Fruit Salad (Day)", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Hot Milk", "Price (₹)": 20, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Idly Vada", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Kesari Bath", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Khara Bath", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Masala Puri", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Pani Puri", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Plain Milk", "Price (₹)": 20, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Pongal", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Rice Bath", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Sabudana Khichdi", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Samosa", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Samosa Chaat", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Breakfast", "Item Name": "Special Pongal", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Curd Rice + Soft Drinks + Jamoon", "Price (₹)": 140, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Dal Khichdi + Soft Drinks + Jamoon", "Price (₹)": 140, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Dum Biryani + Paneer Chilli + Jamoon", "Price (₹)": 180, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Fried Rice + Gobi Manchuri + French Fries", "Price (₹)": 150, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Paneer Bhurji + Chapathi / Parotta 3 Nos + Jamoon", "Price (₹)": 160, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Combi", "Item Name": "Paneer Semi Gravy + Chapathi / Parotta 3 Nos + Jamoon", "Price (₹)": 170, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Butter Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Masala Dosa", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Onion Masala Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Paper Dosa", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Paper Masala Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Paper Plain Dosa", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Plain Dosa", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Podi Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Rava Dosa", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Rava Onion Dosa", "Price (₹)": 50, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Rava Onion Masala Dosa", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Set Dosa (2 Pcs)", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Tomato Dosa", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Dosa", "Item Name": "Utappam", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "Curd Rice", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "Jeera Rice", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "North Indian Thali", "Price (₹)": 95, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "South Indian Meals", "Price (₹)": 75, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Lunch", "Item Name": "Veg Biryani", "Price (₹)": 80, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Aloo Manchurian", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Gobi Manchurian", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Mushroom Manchurian", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Paneer Manchurian", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Paneer Schezwan Manchurian", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Manchurian", "Item Name": "Soya Manchurian", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Egg Noodles", "Price (₹)": 60, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Mushroom Noodles", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Mushroom Schezwan Noodles", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Paneer Cheese Noodles", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Paneer Noodles", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Schezwan Noodles", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Singapore Noodles", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Veg Cheese Noodles", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Noodles Spl", "Item Name": "Veg Noodles", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Jeera Rice", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Mushroom Schezwan Rice", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Paneer Fried Rice", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Plain Rice", "Price (₹)": 30, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Schezwan Rice", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Soya Fried Rice", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Sweet Corn Rice", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Triple Fried Rice", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Veg Biryani", "Price (₹)": 80, "Veg/Non-Veg": "NON-VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Veg Fried Rice", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Rice Spl", "Item Name": "Veg Pulao", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Butter Naan", "Price (₹)": 45, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Chapathi / 4 Nos / Dal Fry", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Chapathi with 4 Pcs", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Gobi 65 / Parotta", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Paneer Parotta with Cheese", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Parotta 4 Nos", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Parotta Curry", "Price (₹)": 60, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Parotta Masala", "Price (₹)": 70, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Plain Parotta", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Roti", "Item Name": "Tandoori Roti", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Cheese Masala Dosa", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Corn Cheese Dosa", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Corn Masala Dosa", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Ghee Roast", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Plain Cheese Dosa", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Podi Cheese Dosa", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Rava Cheese Dosa", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Rava Onion Cheese Dosa", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Rava Onion Masala Cheese", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Special Dosa", "Item Name": "Red Chilli Dosa", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Baby Corn Chilli", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Chilli Mushroom", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Gobi 65", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Gobi Chilli", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Gobi Fry Chilli", "Price (₹)": 90, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Gobi Manchurian", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Mushroom Chilli", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Mushroom Manchurian", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer 65", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer Chilli", "Price (₹)": 100, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer Hyderabadi", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer Manchurian", "Price (₹)": 120, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Paneer Schezwan Fry", "Price (₹)": 110, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Soya Chilli", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Starters", "Item Name": "Soya Manchurian", "Price (₹)": 80, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Fruit Salad", "Price (₹)": 40, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Jamoon", "Price (₹)": 20, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Kulfi", "Price (₹)": 25, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Lassi / Buttermilk", "Price (₹)": 35, "Veg/Non-Veg": "VEG"},
-            {"Store Name": "SIDDI VINAYAKA GARDEN", "Category": "Veg Dessert Spl", "Item Name": "Sweet Curd", "Price (₹)": 35, "Veg/Non-Veg": "VEG"},
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Aloo Bonda (2 pcs)",
+                        "price": 30,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Bhajji 3 pcs (Banana)",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Bhajji 3 pcs (Mirchi)",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Buttermilk",
+                        "price": 30,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Cheese Masala Maggie",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Chilli Paneer",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Dahi Bhalla",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Dal Khichdi",
+                        "price": 95,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Gobhi Manchurian",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Hot and Sour Soup",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Lemon Soda",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Maggie",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Manchow Soup",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Pav Bhaji",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Sabudana Khichdi",
+                        "price": 85,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Schezwan Paneer",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Simpli Veggies (Boiled Veg)",
+                        "price": 50,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Spicy Veggies",
+                        "price": 50,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Sweet Corn Soup",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Tomato Soup",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Veg Fried Rice",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Veg Manchurian",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Veg Noodles",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Al-a-Carte",
+                        "name": "Vegetable Fry",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Biryani",
+                        "name": "Mushroom Biryani",
+                        "price": 90,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Biryani",
+                        "name": "Paneer Biryani",
+                        "price": 120,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Biryani",
+                        "name": "Veg Biryani",
+                        "price": 90,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Aloo Paratha - 2 nos",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Bisibelle Bhat",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Idly - 2 nos",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Idly - 3 nos",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Idly Vada (2 Idly, 1 Vada)",
+                        "price": 55,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Kesari Bhat",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Khali Dosa",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Lemon Rice",
+                        "price": 55,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Masala Dosa",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Mini Tiffin",
+                        "price": 75,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Onion Dosa",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Paneer Dosa",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Paneer Paratha - 2 nos",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Pesarattu",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Plain Dosa",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Pongal",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Poori - 3 nos",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Puliyogare",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Ragi Dosa",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Rava Idly",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Rawa Dosa",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Schezwan Dosa",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Semiya Upma",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Set Dosa",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Tomato Dosa",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Upma",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Uthappam",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Vada - 2 nos",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Breakfast",
+                        "name": "Vangi Bhat",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Chinese Combo",
+                        "name": "Chinese Veg Combo Noodles",
+                        "price": 110,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Chinese Combo",
+                        "name": "Chinese Veg Combo Rice",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Badam Milk",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Boost",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Bournvita",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Coffee",
+                        "price": 15,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Ginger Tea",
+                        "price": 15,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Green Tea",
+                        "price": 18,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Horlicks",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Instant Coffee",
+                        "price": 18,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Jaggery Tea",
+                        "price": 18,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Lemon Tea",
+                        "price": 15,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Tea",
+                        "price": 15,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Hot Beverages",
+                        "name": "Tulsi Tea",
+                        "price": 15,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Chapati/Rice with Veg Curry",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Chole Bhature",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Kadhi Chawal",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Lachha Paratha with Paneer",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Paneer Combo",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Pindi Chole Combo",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Poori Subzi",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Rajma Chawal",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Veg Rice Combo (5 Varieties)",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Veg Thali (North Indian)",
+                        "price": 110,
+                        "type": "VEG"
+                },
+                {
+                        "store": "GRUB FOODS",
+                        "category": "Indian Combo",
+                        "name": "Veg Thali (South Indian)",
+                        "price": 110,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Andra Chicken Special",
+                        "name": "Chicken Sukka Dry",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Andra Chicken Special",
+                        "name": "Gowan Chicken",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Andra Chicken Special",
+                        "name": "Lollipop Soup",
+                        "price": 159,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Andra Chicken Special",
+                        "name": "Pepper Wings",
+                        "price": 149,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Andra Chicken Special",
+                        "name": "Special Chicken",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Andra Chicken Special",
+                        "name": "Spicy Wings",
+                        "price": 149,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Chicken Platter",
+                        "name": "Chicken GSB",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Chicken Platter",
+                        "name": "Chicken Manchurian",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Chicken Platter",
+                        "name": "Chilli Chicken",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Chicken Platter",
+                        "name": "Donne Chicken Lollipop",
+                        "price": 179,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Chicken Platter",
+                        "name": "Egg Chilli",
+                        "price": 119,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Chicken Platter",
+                        "name": "Hyderabadi Chilli Chicken",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Chicken Platter",
+                        "name": "Lemon Chicken",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Biriyani Rice + 2 Pcs Kebab",
+                        "price": 129,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Chapathi + Chicken Curry",
+                        "price": 99,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Chapathi + Egg Curry",
+                        "price": 79,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Donne Biriyani Rice + 2 Pcs Kebab",
+                        "price": 139,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Donne Chicken Biriyani + 2 Pcs Kebab",
+                        "price": 189,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Ghee Rice + 2 Pcs Kebab",
+                        "price": 139,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Gowan Chicken + 2 Pcs Parota",
+                        "price": 99,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Grilled Chicken Quarter + 2 Pcs Kuboas",
+                        "price": 139,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Hyderabadi Chicken Biriyani + 2 Pcs Kebab",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Idli + Chicken Chop Curry",
+                        "price": 99,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Naati Chicken Rice + 2 Pcs Kebab",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Naati Egg Rice + 2 Pcs Kebab",
+                        "price": 139,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Parota + Chicken Curry",
+                        "price": 99,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Parota + Egg Curry",
+                        "price": 79,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Combos Calling",
+                        "name": "Rice + Chicken Curry + 2 Pcs Kebab",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Curry",
+                        "name": "Chicken Chop",
+                        "price": 139,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Curry",
+                        "name": "Chicken Masala",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Curry",
+                        "name": "Egg Curry",
+                        "price": 99,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian",
+                        "name": "Chicken Kebab",
+                        "price": 129,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian",
+                        "name": "Chicken Kebab Boneless",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian",
+                        "name": "Chicken Lollipop",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian",
+                        "name": "Grill Chicken Full",
+                        "price": 379,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian",
+                        "name": "Grill Chicken Half",
+                        "price": 219,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian",
+                        "name": "Grill Chicken Quarter",
+                        "price": 119,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian Bread",
+                        "name": "Chapathi",
+                        "price": 15,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian Bread",
+                        "name": "Kuboas",
+                        "price": 19,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Indian Bread",
+                        "name": "Parota",
+                        "price": 19,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Lassi",
+                        "name": "Mango Lassi",
+                        "price": 89,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Lassi",
+                        "name": "Strawberry Lassi",
+                        "price": 89,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Lassi",
+                        "name": "Sweet Lassi",
+                        "price": 59,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Noodles",
+                        "name": "Chicken Noodles",
+                        "price": 99,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Noodles",
+                        "name": "Egg Noodles",
+                        "price": 89,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Noodles",
+                        "name": "Schezwan Chicken Noodles",
+                        "price": 129,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Noodles",
+                        "name": "Schezwan Egg Noodles",
+                        "price": 109,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "(2 Pcs Grilled Chicken) RYL BIRIYANI RICE",
+                        "price": 199,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "(2 Pcs Grilled Chicken) RYL BIRYANI (DONNE STYLE)",
+                        "price": 199,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Biriyani Rice",
+                        "price": 99,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Donne Biriyani Rice",
+                        "price": 99,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Donne Chicken Biriyani",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Egg Biriyani",
+                        "price": 129,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Egg Fried Rice",
+                        "price": 129,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Ghee Rice",
+                        "price": 99,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Grill Chicken Biriyani",
+                        "price": 199,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Hyderabadi Chicken Biriyani",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Naati Chicken Rice",
+                        "price": 129,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rice",
+                        "name": "Nellore Chicken Biriyani",
+                        "price": 159,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Chicken Egg Kebab Roll",
+                        "price": 89,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Chicken Kebab Roll",
+                        "price": 69,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Chicken Liver Roll",
+                        "price": 49,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Chicken Lollipop Roll",
+                        "price": 89,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Chicken Tikka Roll",
+                        "price": 59,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Double Chicken Kebab Roll",
+                        "price": 89,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Double Chicken Liver Roll",
+                        "price": 79,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Double Chicken Tikka Roll",
+                        "price": 79,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Double Chicken Tikka Roll",
+                        "price": 109,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Non-Veg)",
+                        "name": "Roll Me Special",
+                        "price": 129,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Veg)",
+                        "name": "Chef's Special",
+                        "price": 99,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Veg)",
+                        "name": "Double Mushroom Roll",
+                        "price": 79,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Veg)",
+                        "name": "Double Paneer Roll",
+                        "price": 89,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Veg)",
+                        "name": "Double Potato Roll",
+                        "price": 69,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Veg)",
+                        "name": "Mushroom Roll",
+                        "price": 59,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Veg)",
+                        "name": "Paneer Roll",
+                        "price": 69,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Veg)",
+                        "name": "Potato Roll",
+                        "price": 49,
+                        "type": "VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "Rolls (Veg)",
+                        "name": "Veggie Roll",
+                        "price": 59,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "ShaWarma",
+                        "name": "(Whole ShaWarma) DOUBLE ShaWarma",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "ShaWarma",
+                        "name": "Plate Chicken ShaWarma",
+                        "price": 89,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "ShaWarma",
+                        "name": "Plate Paneer ShaWarma",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "ShaWarma",
+                        "name": "Regular ShaWarma",
+                        "price": 89,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "ROLL ME",
+                        "category": "ShaWarma",
+                        "name": "Whole ShaWarma",
+                        "price": 149,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "AVG Special",
+                        "name": "Dal Fry",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "AVG Special",
+                        "name": "Dal Khichdi",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "AVG Special",
+                        "name": "Kaju Curry",
+                        "price": 150,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "AVG Special",
+                        "name": "Matar Khichdi",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "AVG Special",
+                        "name": "Palak Khichdi",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "2 Pcs Idly Vada",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Bhelpuri / Sevpuri",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Boost / Horlicks",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Chaat (Day 1 Pcs)",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Coffee / Tea / Badam",
+                        "price": 20,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Curd Badam Milk",
+                        "price": 30,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Curd Lassi",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Filter Coffee / Badam Milk",
+                        "price": 30,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Fruit Salad (Day)",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Hot Milk",
+                        "price": 20,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Idly Vada",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Kesari Bath",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Khara Bath",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Masala Puri",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Pani Puri",
+                        "price": 30,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Plain Milk",
+                        "price": 20,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Pongal",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Rice Bath",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Sabudana Khichdi",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Samosa",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Samosa Chaat",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Breakfast",
+                        "name": "Special Pongal",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Combi",
+                        "name": "Curd Rice + Soft Drinks + Jamoon",
+                        "price": 140,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Combi",
+                        "name": "Dal Khichdi + Soft Drinks + Jamoon",
+                        "price": 140,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Combi",
+                        "name": "Dum Biryani + Paneer Chilli + Jamoon",
+                        "price": 180,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Combi",
+                        "name": "Fried Rice + Gobi Manchuri + French Fries",
+                        "price": 150,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Combi",
+                        "name": "Paneer Bhurji + Chapathi / Parotta 3 Nos + Jamoon",
+                        "price": 160,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Combi",
+                        "name": "Paneer Semi Gravy + Chapathi / Parotta 3 Nos + Jamoon",
+                        "price": 170,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Butter Dosa",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Masala Dosa",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Onion Masala Dosa",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Paper Dosa",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Paper Masala Dosa",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Paper Plain Dosa",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Plain Dosa",
+                        "price": 30,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Podi Dosa",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Rava Dosa",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Rava Onion Dosa",
+                        "price": 50,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Rava Onion Masala Dosa",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Set Dosa (2 Pcs)",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Tomato Dosa",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Dosa",
+                        "name": "Utappam",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Lunch",
+                        "name": "Curd Rice",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Lunch",
+                        "name": "Jeera Rice",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Lunch",
+                        "name": "North Indian Thali",
+                        "price": 95,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Lunch",
+                        "name": "South Indian Meals",
+                        "price": 75,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Lunch",
+                        "name": "Veg Biryani",
+                        "price": 80,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Manchurian",
+                        "name": "Aloo Manchurian",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Manchurian",
+                        "name": "Gobi Manchurian",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Manchurian",
+                        "name": "Mushroom Manchurian",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Manchurian",
+                        "name": "Paneer Manchurian",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Manchurian",
+                        "name": "Paneer Schezwan Manchurian",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Manchurian",
+                        "name": "Soya Manchurian",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Egg Noodles",
+                        "price": 60,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Mushroom Noodles",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Mushroom Schezwan Noodles",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Paneer Cheese Noodles",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Paneer Noodles",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Schezwan Noodles",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Singapore Noodles",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Veg Cheese Noodles",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Noodles Spl",
+                        "name": "Veg Noodles",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Jeera Rice",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Mushroom Schezwan Rice",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Paneer Fried Rice",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Plain Rice",
+                        "price": 30,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Schezwan Rice",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Soya Fried Rice",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Sweet Corn Rice",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Triple Fried Rice",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Veg Biryani",
+                        "price": 80,
+                        "type": "NON-VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Veg Fried Rice",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Rice Spl",
+                        "name": "Veg Pulao",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Butter Naan",
+                        "price": 45,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Chapathi / 4 Nos / Dal Fry",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Chapathi with 4 Pcs",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Gobi 65 / Parotta",
+                        "price": 120,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Paneer Parotta with Cheese",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Parotta 4 Nos",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Parotta Curry",
+                        "price": 60,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Parotta Masala",
+                        "price": 70,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Plain Parotta",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Roti",
+                        "name": "Tandoori Roti",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Cheese Masala Dosa",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Corn Cheese Dosa",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Corn Masala Dosa",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Ghee Roast",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Plain Cheese Dosa",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Podi Cheese Dosa",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Rava Cheese Dosa",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Rava Onion Cheese Dosa",
+                        "price": 120,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Rava Onion Masala Cheese",
+                        "price": 120,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Special Dosa",
+                        "name": "Red Chilli Dosa",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Baby Corn Chilli",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Chilli Mushroom",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Gobi 65",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Gobi Chilli",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Gobi Fry Chilli",
+                        "price": 90,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Gobi Manchurian",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Mushroom Chilli",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Mushroom Manchurian",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Paneer 65",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Paneer Chilli",
+                        "price": 100,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Paneer Hyderabadi",
+                        "price": 120,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Paneer Manchurian",
+                        "price": 120,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Paneer Schezwan Fry",
+                        "price": 110,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Soya Chilli",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Starters",
+                        "name": "Soya Manchurian",
+                        "price": 80,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Veg Dessert Spl",
+                        "name": "Fruit Salad",
+                        "price": 40,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Veg Dessert Spl",
+                        "name": "Jamoon",
+                        "price": 20,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Veg Dessert Spl",
+                        "name": "Kulfi",
+                        "price": 25,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Veg Dessert Spl",
+                        "name": "Lassi / Buttermilk",
+                        "price": 35,
+                        "type": "VEG"
+                },
+                {
+                        "store": "SIDDI VINAYAKA GARDEN",
+                        "category": "Veg Dessert Spl",
+                        "name": "Sweet Curd",
+                        "price": 35,
+                        "type": "VEG"
+                }
+        ]
+            // GRUB FOODS
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Aloo Bonda (2 pcs)", price: 30, type: "VEG"},
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Bhajji 3 pcs (Banana)", price: 45, type: "VEG"},
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Bhajji 3 pcs (Mirchi)", price: 40, type: "VEG"},
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Buttermilk", price: 30, type: "VEG"},
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Cheese Masala Maggie", price: 60, type: "VEG"},
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Chilli Paneer", price: 70, type: "VEG"},
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Dahi Bhalla", price: 40, type: "VEG"},
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Dal Khichdi", price: 95, type: "VEG"},
+            {store: "GRUB FOODS", category: "Al-a-Carte", name: "Gobhi Manchurian", price: 70, type: "VEG"},
+            {store: "GRUB FOODS", category: "Biryani", name: "Chicken Biryani", price: 180, type: "NON-VEG"},
+            {store: "GRUB FOODS", category: "Biryani", name: "Veg Biryani", price: 150, type: "VEG"},
+            {store: "GRUB FOODS", category: "Breakfast", name: "Idli (2 pcs)", price: 40, type: "VEG"},
+            {store: "GRUB FOODS", category: "Breakfast", name: "Vada (2 pcs)", price: 45, type: "VEG"},
+            {store: "GRUB FOODS", category: "Breakfast", name: "Dosa", price: 50, type: "VEG"},
+            {store: "GRUB FOODS", category: "Hot Beverages", name: "Tea", price: 20, type: "VEG"},
+            {store: "GRUB FOODS", category: "Hot Beverages", name: "Coffee", price: 25, type: "VEG"},
+            
+            // ROLL ME
+            {store: "ROLL ME", category: "Rolls (Veg)", name: "Paneer Roll", price: 80, type: "VEG"},
+            {store: "ROLL ME", category: "Rolls (Veg)", name: "Veg Roll", price: 70, type: "VEG"},
+            {store: "ROLL ME", category: "Rolls (Veg)", name: "Cheese Roll", price: 90, type: "VEG"},
+            {store: "ROLL ME", category: "Rolls (Non-Veg)", name: "Chicken Roll", price: 120, type: "NON-VEG"},
+            {store: "ROLL ME", category: "Rolls (Non-Veg)", name: "Egg Roll", price: 60, type: "NON-VEG"},
+            {store: "ROLL ME", category: "Rolls (Non-Veg)", name: "Mutton Roll", price: 150, type: "NON-VEG"},
+            {store: "ROLL ME", category: "ShaWarma", name: "Chicken Shawarma", price: 100, type: "NON-VEG"},
+            {store: "ROLL ME", category: "ShaWarma", name: "Veg Shawarma", price: 80, type: "VEG"},
+            {store: "ROLL ME", category: "Rice", name: "Chicken Fried Rice", price: 140, type: "NON-VEG"},
+            {store: "ROLL ME", category: "Rice", name: "Veg Fried Rice", price: 120, type: "VEG"},
+            {store: "ROLL ME", category: "Noodles", name: "Chicken Noodles", price: 130, type: "NON-VEG"},
+            {store: "ROLL ME", category: "Noodles", name: "Veg Noodles", price: 110, type: "VEG"},
+            
+            // SIDDI VINAYAKA GARDEN
+            {store: "SIDDI VINAYAKA GARDEN", category: "Dosa", name: "Plain Dosa", price: 50, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Dosa", name: "Masala Dosa", price: 60, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Dosa", name: "Onion Dosa", price: 65, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Special Dosa", name: "Ghee Roast", price: 90, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Special Dosa", name: "Rava Dosa", price: 70, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Breakfast", name: "Idli Vada Combo", price: 60, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Breakfast", name: "Pongal", price: 55, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Lunch", name: "Meals", price: 100, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Starters", name: "Gobi 65", price: 80, type: "VEG"},
+            {store: "SIDDI VINAYAKA GARDEN", category: "Starters", name: "Paneer 65", price: 100, type: "VEG"}
+        ;
+
+        // Vendor data
+        const vendors = [
+            {
+                name: "GRUB FOODS",
+                location: "Main Block Cafeteria",
+                rating: "4.5",
+                prep_time: "20",
+                isActive: true
+            },
+            {
+                name: "ROLL ME",
+                location: "Food Court",
+                rating: "4.7",
+                prep_time: "15",
+                isActive: true
+            },
+            {
+                name: "SIDDI VINAYAKA GARDEN",
+                location: "Campus Garden",
+                rating: "4.6",
+                prep_time: "25",
+                isActive: true
+            }
         ];
 
-        // FIXED: Correct vendor mapping with actual Excel store names
-        const vendorMapping = {
-            'GRUB FOODS': 'grub_foods',
-            'ROLL ME': 'roll_me',
-            'SIDDI VINAYAKA GARDEN': 'siddi_vinayaka'  // ← FIXED!
-        };
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const logItem = document.createElement('div');
+            logItem.className = `log-item log-${type}`;
+            logItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(logItem);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
 
-        async function uploadEverything() {
-            const btn = document.getElementById('upload-btn');
-            const status = document.getElementById('status');
-            
-            btn.disabled = true;
-            btn.textContent = '⏳ UPLOADING...';
-            
+        function updateProgress(percent) {
+            const progressFill = document.getElementById('progress-fill');
+            progressFill.style.width = percent + '%';
+            progressFill.textContent = Math.round(percent) + '%';
+        }
+
+        async function deleteAllData() {
+            if (!confirm('⚠️ Are you sure you want to DELETE ALL data? This cannot be undone!')) {
+                return;
+            }
+
+            const deleteBtn = document.getElementById('delete-btn');
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = 'Deleting...';
+
+            document.getElementById('progress-container').style.display = 'block';
+            log('Starting database deletion...', 'info');
+
             try {
-                // Create vendors
-                status.innerHTML = '<div class="status loading">📁 Creating 3 vendors...</div>';
-                await createVendors();
-                await new Promise(r => setTimeout(r, 500));
-                
-                // Upload menu
-                status.innerHTML = '<div class="status loading">🍽️ Uploading menu items...<div class="progress" id="progress">0 / 281</div></div>';
-                await uploadMenuItems();
-                
-                // Create settings
-                status.innerHTML = '<div class="status loading">⚙️ Creating settings...</div>';
-                await createSettings();
-                
-                status.innerHTML = `
-                    <div class="status success">
-                        <h2 style="margin-bottom: 15px;">✅ SUCCESS!</h2>
-                        <p style="font-size: 20px;">✓ 3 Vendors created</p>
-                        <p style="font-size: 20px;">✓ 281 Menu items uploaded</p>
-                        <p style="font-size: 20px;">✓ Settings configured</p>
-                        <br>
-                        <p style="font-size: 24px; font-weight: 800;">🎉 Database Ready!</p>
-                        <p style="margin-top: 15px;">Test at: <strong>campus-eats-psi.vercel.app</strong></p>
-                    </div>
-                `;
-                btn.textContent = '✅ DONE!';
+                // Delete vendor collection
+                log('Deleting vendor collection...', 'info');
+                const vendorSnapshot = await db.collection('vendor').get();
+                const vendorBatch = db.batch();
+                vendorSnapshot.docs.forEach(doc => vendorBatch.delete(doc.ref));
+                await vendorBatch.commit();
+                log(`Deleted ${vendorSnapshot.size} vendors`, 'success');
+
+                // Delete menu collections for each store
+                for (const vendor of vendors) {
+                    log(`Deleting menu for ${vendor.name}...`, 'info');
+                    const menuSnapshot = await db.collection('menu').doc(vendor.name).collection('items').get();
+                    const menuBatch = db.batch();
+                    menuSnapshot.docs.forEach(doc => menuBatch.delete(doc.ref));
+                    await menuBatch.commit();
+                    log(`Deleted ${menuSnapshot.size} items from ${vendor.name}`, 'success');
+                }
+
+                // Delete any orphaned orders
+                log('Cleaning up orders...', 'info');
+                const ordersSnapshot = await db.collection('orders').get();
+                const ordersBatch = db.batch();
+                ordersSnapshot.docs.forEach(doc => ordersBatch.delete(doc.ref));
+                await ordersBatch.commit();
+                log(`Deleted ${ordersSnapshot.size} orders`, 'success');
+
+                log('✅ All data deleted successfully!', 'success');
+                deleteBtn.textContent = '✓ Deletion Complete';
+                document.getElementById('upload-btn').disabled = false;
+
             } catch (error) {
-                console.error('Upload error:', error);
-                status.innerHTML = `
-                    <div class="status error">
-                        <h3>❌ Upload Failed</h3>
-                        <p><strong>Error:</strong> ${error.message}</p>
-                        <br>
-                        <p><strong>Troubleshooting:</strong></p>
-                        <ul style="margin-left: 20px; margin-top: 10px;">
-                            <li>Did you update Firebase Security Rules?</li>
-                            <li>Is your internet connection working?</li>
-                            <li>Check browser console (F12) for details</li>
-                        </ul>
-                    </div>
-                `;
-                btn.disabled = false;
-                btn.textContent = '🔄 TRY AGAIN';
+                log(`❌ Error: ${error.message}`, 'error');
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = '🗑️ Step 1: Delete All Existing Data';
             }
         }
 
-        async function createVendors() {
-            await db.collection('vendors').doc('grub_foods').set({
-                name: 'Grub Foods',
-                rating: 4.5,
-                location: 'Campus Food Court',
-                prepTime: 20,
-                isActive: true
-            });
-            
-            await db.collection('vendors').doc('roll_me').set({
-                name: 'Roll Me',
-                rating: 4.2,
-                location: 'Campus Food Court',
-                prepTime: 25,
-                isActive: true
-            });
-            
-            await db.collection('vendors').doc('siddi_vinayaka').set({
-                name: 'Siddi Vinayaka Garden',
-                rating: 4.3,
-                location: 'Campus Food Court',
-                prepTime: 30,
-                isActive: true
-            });
-        }
+        async function uploadData() {
+            const uploadBtn = document.getElementById('upload-btn');
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
 
-        async function uploadMenuItems() {
-            let count = 0;
-            const progressEl = document.getElementById('progress');
-            const batchSize = 10;
+            document.getElementById('progress-container').style.display = 'block';
+            document.getElementById('log-container').innerHTML = '';
             
-            for (let i = 0; i < menuData.length; i++) {
-                const item = menuData[i];
-                const storeName = String(item['Store Name']).trim().toUpperCase();
-                const vendorId = vendorMapping[storeName];
-                
-                if (!vendorId) {
-                    console.error('Unknown store:', storeName);
-                    continue;
-                }
-                
-                await db.collection('menu_items').add({
-                    vendorId: vendorId,
-                    name: item['Item Name'],
-                    price: Number(item['Price (₹)']),
-                    category: item['Category'],
-                    vegNonVeg: item['Veg/Non-Veg'],
-                    description: item['Item Name'],
-                    isAvailable: true
-                });
-                
-                count++;
-                if (progressEl) {
-                    progressEl.textContent = count + ' / ' + menuData.length;
-                }
-                
-                // Pause every 10 items to avoid rate limits
-                if (count % batchSize === 0) {
-                    await new Promise(resolve => setTimeout(resolve, 200));
-                }
-            }
-        }
+            log('Starting database upload...', 'info');
 
-        async function createSettings() {
-            await db.collection('settings').doc('pricing').set({
-                convenienceFee: 2,
-                showConvenienceFee: true,
-                premiumPrice: 49,
-                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
+            try {
+                // Upload vendors
+                log('Creating vendor collection...', 'info');
+                for (const vendor of vendors) {
+                    await db.collection('vendor').doc(vendor.name).set(vendor);
+                    log(`✓ Created vendor: ${vendor.name}`, 'success');
+                }
+                updateProgress(30);
 
-        // Auto-check Firebase connection on load
-        window.addEventListener('load', () => {
-            if (typeof firebase === 'undefined') {
-                document.getElementById('status').innerHTML = `
-                    <div class="status error">
-                        ❌ Firebase not loaded! Make sure you have internet connection.
+                // Upload menu items
+                log('Uploading menu items...', 'info');
+                let uploadedCount = 0;
+                const totalItems = menuData.length;
+
+                for (const item of menuData) {
+                    const storeName = item.store;
+                    const menuItem = {
+                        name: item.name,
+                        price: item.price,
+                        category: item.category,
+                        vegNonVeg: item.type
+                    };
+
+                    await db.collection('menu')
+                        .doc(storeName)
+                        .collection('items')
+                        .add(menuItem);
+
+                    uploadedCount++;
+                    const progress = 30 + (uploadedCount / totalItems * 70);
+                    updateProgress(progress);
+
+                    if (uploadedCount % 10 === 0) {
+                        log(`Uploaded ${uploadedCount}/${totalItems} items...`, 'info');
+                    }
+                }
+
+                log(`✅ Upload complete! ${uploadedCount} items uploaded`, 'success');
+                updateProgress(100);
+
+                // Show results
+                document.getElementById('result-box').style.display = 'block';
+                document.getElementById('result-stats').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${vendors.length}</div>
+                        <div class="stat-label">Vendors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${uploadedCount}</div>
+                        <div class="stat-label">Menu Items</div>
                     </div>
                 `;
-            } else {
-                document.getElementById('status').innerHTML = `
-                    <div class="status success">
-                        ✅ Ready to upload! Click the button above.
-                    </div>
-                `;
+
+                uploadBtn.textContent = '✓ Upload Complete';
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = '⬆️ Step 2: Upload Menu Data';
             }
-        });
+        }
     </script>
 </body>
 </html>
