@@ -260,6 +260,81 @@
         }
 
         /* ================================
+           HOME HERO BANNER
+        ================================ */
+        .home-hero {
+            background: var(--gradient);
+            padding: 40px 32px 48px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .home-hero::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 220px;
+            height: 220px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+
+        .home-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            right: 80px;
+            width: 160px;
+            height: 160px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+        .hero-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.25));
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .hero-text {
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            font-weight: 800;
+            color: white;
+            line-height: 1.1;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .hero-subtitle {
+            font-size: 15px;
+            color: rgba(255,255,255,0.88);
+            margin-top: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .home-hero {
+                padding: 28px 20px 36px;
+            }
+            .hero-logo {
+                width: 64px;
+                height: 64px;
+            }
+            .hero-title {
+                font-size: 28px;
+            }
+        }
+
+        /* ================================
            SEARCH & FILTERS
         ================================ */
         .search-box {
@@ -1074,8 +1149,15 @@
              HOME SCREEN
         ================================ -->
         <div id="home-screen" class="screen active">
+            <!-- Hero Banner -->
+            <div class="home-hero">
+                <img id="home-hero-logo" src="" alt="Campus Eats" class="hero-logo">
+                <div class="hero-text">
+                    <h1 class="hero-title">Campus Eats</h1>
+                    <p class="hero-subtitle">Delicious food, delivered fast 🔥</p>
+                </div>
+            </div>
             <div class="container">
-                <h2 style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Delicious Food, Delivered Fast</h2>
                 <p style="color: var(--text-light); margin-bottom: 24px;">Order from your favorite campus vendors</p>
 
                 <!-- Search -->
@@ -1226,7 +1308,7 @@
 
         // Set logo on all img elements
         function setLogos() {
-            document.querySelectorAll('img[alt="Campus Eats Logo"], img[alt="Campus Eats"], #nav-logo, #banner-logo').forEach(img => {
+            document.querySelectorAll('img[alt="Campus Eats Logo"], img[alt="Campus Eats"], #nav-logo, #banner-logo, #home-hero-logo').forEach(img => {
                 img.src = LOGO_SRC;
             });
         }
